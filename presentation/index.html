@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Compound Engineering Plugin</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/theme/black.css">
+  <script>
+    // Apply theme immediately to prevent FOUC
+    (function() {
+      try {
+        var saved = JSON.parse(localStorage.getItem('pres-prefs') || '{}');
+        var validThemes = ['dark', 'light'];
+        var theme = validThemes.indexOf(saved.theme) !== -1 ? saved.theme : null;
+        if (!theme) {
+          theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+        }
+        document.documentElement.setAttribute('data-theme', theme);
+      } catch(e) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
+  <style>
+    /* ── Theme Variables ── */
+    :root, :root[data-theme="dark"] {
+      --bg-primary: #191919;
+      --bg-secondary: #1e1e2e;
+      --text-primary: #ffffff;
+      --text-secondary: #8b949e;
+      --accent: #58a6ff;
+      --green: #3fb950;
+      --red: #f85149;
+      --muted: #8b949e;
+      --code-bg: rgba(88,166,255,0.1);
+      --border-color: rgba(255,255,255,0.1);
+      --controls-bg: rgba(0,0,0,0.6);
+      --controls-border: rgba(255,255,255,0.2);
+      --controls-text: #ffffff;
+      --blockquote-bg: rgba(88,166,255,0.05);
+      --workflow-box-bg: rgba(88,166,255,0.08);
+      --workflow-box-optional-bg: rgba(139,148,158,0.08);
+    }
+
+    :root[data-theme="light"] {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f6f8fa;
+      --text-primary: #1f2328;
+      --text-secondary: #656d76;
+      --accent: #0969da;
+      --green: #1a7f37;
+      --red: #cf222e;
+      --muted: #656d76;
+      --code-bg: rgba(9,105,218,0.08);
+      --border-color: rgba(0,0,0,0.12);
+      --controls-bg: rgba(255,255,255,0.85);
+      --controls-border: rgba(0,0,0,0.15);
+      --controls-text: #1f2328;
+      --blockquote-bg: rgba(9,105,218,0.05);
+      --workflow-box-bg: rgba(9,105,218,0.06);
+      --workflow-box-optional-bg: rgba(101,109,118,0.08);
+    }
+
+    /* ── Reveal.js Overrides ── */
+    .reveal {
+      font-size: 32px;
+      background: var(--bg-primary) !important;
+    }
+    .reveal .slides { background: transparent; }
+    .reveal .slide-background { background: var(--bg-primary) !important; }
+    .reveal h1 { font-size: 2em; color: var(--text-primary); }
+    .reveal h2 { font-size: 1.5em; color: var(--accent); margin-bottom: 0.6em; }
+    .reveal h3 { font-size: 1.1em; color: var(--muted); }
+    .reveal ul { text-align: left; }
+    .reveal li { font-size: 0.75em; margin-bottom: 0.4em; line-height: 1.4; color: var(--text-primary); }
+    .reveal p { font-size: 0.8em; line-height: 1.5; color: var(--text-primary); }
+    .reveal strong { color: var(--text-primary); }
+    .reveal a { color: var(--accent); }
+    .reveal code {
+      color: var(--accent);
+      background: var(--code-bg);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.85em;
+    }
+    .reveal .subtitle { color: var(--muted); font-size: 0.7em; margin-top: 0.5em; }
+    .reveal .highlight { color: var(--accent); font-weight: bold; }
+    .reveal .pros { color: var(--green); }
+    .reveal .cons { color: var(--red); }
+    .reveal .small { font-size: 0.6em; color: var(--muted); }
+
+    /* Reveal.js navigation controls */
+    .reveal .controls button { color: var(--accent) !important; }
+    .reveal .progress span { background: var(--accent) !important; }
+    .reveal .progress { background: var(--border-color) !important; }
+    .reveal .slide-number { color: var(--muted) !important; background: transparent !important; }
+
+    /* ── Workflow diagram ── */
+    .workflow { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 8px; margin: 30px 0; }
+    .workflow-box {
+      display: inline-block;
+      padding: 12px 22px;
+      border: 2px solid var(--accent);
+      border-radius: 10px;
+      font-size: 0.65em;
+      font-weight: bold;
+      color: var(--text-primary);
+      background: var(--workflow-box-bg);
+    }
+    .workflow-box.optional {
+      border-color: var(--muted);
+      border-style: dashed;
+      background: var(--workflow-box-optional-bg);
+    }
+    .arrow { color: var(--accent); font-size: 1.2em; font-weight: bold; }
+    .loop-arrow { display: block; text-align: center; color: var(--muted); font-size: 0.6em; margin-top: 10px; }
+
+    /* ── Command table ── */
+    .cmd-table { width: 100%; border-collapse: collapse; font-size: 0.55em; }
+    .cmd-table td { padding: 8px 12px; border-bottom: 1px solid var(--border-color); vertical-align: top; color: var(--text-primary); }
+    .cmd-table td:first-child { white-space: nowrap; color: var(--accent); font-family: monospace; font-weight: bold; }
+    .cmd-table .aliases { color: var(--muted); font-family: monospace; font-size: 0.85em; display: block; margin-top: 2px; }
+
+    /* ── Pros/Cons grid ── */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; text-align: left; }
+    .two-col ul { list-style: none; padding: 0; }
+    .two-col li { padding-left: 1.5em; position: relative; font-size: 0.65em; margin-bottom: 0.5em; }
+    .two-col li::before { position: absolute; left: 0; }
+    .two-col .pros-list li::before { content: "\2713"; color: var(--green); font-weight: bold; }
+    .two-col .cons-list li::before { content: "\2717"; color: var(--red); font-weight: bold; }
+
+    /* ── Platform badges ── */
+    .badge { display: inline-block; padding: 4px 12px; margin: 3px; border-radius: 20px; font-size: 0.55em; border: 1px solid; }
+    .badge.primary { border-color: var(--green); color: var(--green); }
+    .badge.experimental { border-color: var(--muted); color: var(--muted); }
+
+    /* ── Blockquote ── */
+    .reveal blockquote {
+      border-left: 4px solid var(--accent);
+      padding: 15px 25px;
+      margin: 20px auto;
+      background: var(--blockquote-bg);
+      font-style: italic;
+      width: 80%;
+      font-size: 0.85em;
+      color: var(--text-primary);
+    }
+
+    /* ── Kelsus cursor blink animation ── */
+    @keyframes kelsus-blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+    .kelsus-cursor { animation: kelsus-blink 1s step-end infinite; }
+
+    /* ── Kelsus branding ── */
+    .kelsus-logo {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      font-size: 1.1em;
+      font-weight: 300;
+      letter-spacing: 0.05em;
+      color: var(--text-primary);
+      margin-bottom: 0.3em;
+    }
+    .kelsus-logo .dot { opacity: 0.5; }
+    .event-name {
+      font-size: 1.6em;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 0.2em;
+      letter-spacing: 0.02em;
+    }
+    .presenter {
+      font-size: 0.75em;
+      color: var(--text-primary);
+      margin-top: 0.8em;
+      font-weight: 500;
+    }
+
+    /* ── Persistent Kelsus logo (all slides, top-left) ── */
+    #kelsus-watermark {
+      position: fixed;
+      top: 16px;
+      left: 16px;
+      z-index: 100;
+      display: none;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+      opacity: 0.7;
+      transition: opacity 0.2s;
+      color: var(--text-primary);
+    }
+    #kelsus-watermark:hover { opacity: 1; }
+    #kelsus-watermark svg {
+      height: 18px;
+      width: auto;
+    }
+    #kelsus-watermark .camp-label {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      font-size: 22px;
+      font-weight: 600;
+      line-height: 1;
+      letter-spacing: 0.03em;
+      color: var(--accent);
+    }
+
+    @media (max-width: 600px) {
+      #kelsus-watermark {
+        top: 8px;
+        left: 8px;
+        gap: 4px;
+      }
+      #kelsus-watermark svg { width: 48px; height: 12px; }
+      #kelsus-watermark .camp-label { font-size: 11px; }
+    }
+
+    /* ── Controls (outside .reveal) ── */
+    #pres-controls {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 100;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    }
+
+    #theme-toggle {
+      background: var(--controls-bg);
+      border: 1px solid var(--controls-border);
+      border-radius: 8px;
+      padding: 6px 10px;
+      cursor: pointer;
+      font-size: 18px;
+      line-height: 1;
+      min-width: 44px;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    #theme-toggle:hover {
+      border-color: var(--accent);
+    }
+
+    #lang-select {
+      background: var(--controls-bg);
+      color: var(--controls-text);
+      border: 1px solid var(--controls-border);
+      border-radius: 8px;
+      padding: 6px 12px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      min-height: 44px;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    #lang-select:hover {
+      border-color: var(--accent);
+    }
+    #lang-select option {
+      background: var(--bg-primary);
+      color: var(--text-primary);
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      #pres-controls {
+        top: 8px;
+        right: 8px;
+        gap: 4px;
+      }
+      #theme-toggle {
+        font-size: 14px;
+        padding: 4px 8px;
+        min-width: 44px;
+        min-height: 44px;
+      }
+      #lang-select {
+        font-size: 12px;
+        padding: 4px 8px;
+        min-height: 44px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Kelsus logo: OUTSIDE .reveal to persist on all slides -->
+  <a id="kelsus-watermark" href="https://kelsus.com" target="_blank" rel="noopener">
+    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="16" viewBox="0 0 64 16" fill="none"><path d="M8.46476 15.3513L3.88867 7.9927L8.44695 1.05728H11.1908L6.33707 7.86798L11.4462 15.3513H8.46476Z" fill="currentColor"/><path d="M4.00879 15.3513V12.8271H-0.000119686V15.3513H4.00879Z" fill="currentColor" class="kelsus-cursor"/><path d="M18.1914 15.3482C17.4194 15.3482 16.7111 15.2205 16.086 14.9695C15.4609 14.7186 14.919 14.3712 14.4736 13.9391C14.0296 13.513 13.6822 13.0037 13.4431 12.4217C13.2026 11.8396 13.0793 11.2056 13.0793 10.539V10.1485C13.0793 9.38082 13.2011 8.67258 13.4401 8.04303C13.6792 7.41497 14.0162 6.86857 14.4424 6.4172C14.867 5.96731 15.3793 5.61245 15.9643 5.36301C16.5493 5.11356 17.1966 4.98587 17.8885 4.98587C18.5805 4.98587 19.2531 5.10465 19.8099 5.33925C20.3622 5.57236 20.8388 5.90346 21.2249 6.32514C21.6035 6.74682 21.8989 7.26501 22.0994 7.86486C22.3028 8.47214 22.4067 9.15514 22.4067 9.89456V10.7498H15.2397V11.1076L15.2456 11.1388C15.3422 11.5887 15.4713 11.9599 15.6287 12.242C15.7876 12.5286 16.0044 12.7899 16.2701 13.02C16.5433 13.2576 16.8596 13.4432 17.2115 13.5724C17.5619 13.7015 17.9479 13.7669 18.3592 13.7669C18.9279 13.7669 19.4877 13.6585 20.0222 13.4432C20.4572 13.268 20.8314 13.02 21.1387 12.7038L22.0994 13.7416C21.7787 14.1188 21.3125 14.4707 20.7082 14.7899C20.0058 15.1626 19.1595 15.3511 18.1914 15.3511V15.3482ZM17.8693 6.58944C17.5248 6.58944 17.2041 6.6518 16.9145 6.77355C16.6235 6.89678 16.3652 7.07644 16.1499 7.30807C15.9361 7.5293 15.7534 7.79953 15.6094 8.10836C15.4698 8.40978 15.3629 8.74831 15.2946 9.11653L15.2278 9.46842H20.3355V8.95617C20.3355 8.63249 20.2761 8.32217 20.1573 8.03264C20.04 7.74459 19.8737 7.4907 19.6658 7.2754C19.452 7.0616 19.1937 6.89381 18.8952 6.77206C18.5968 6.65031 18.2523 6.58944 17.8707 6.58944H17.8693Z" fill="currentColor"/><path d="M24.04 15.3511V13.7387H27.2041V2.56866H24.04V0.648834H29.3541V13.7387H32.3815V15.3511H24.04Z" fill="currentColor"/><path d="M38.5806 15.3511C37.8234 15.3511 37.1478 15.2516 36.5732 15.0542C36.0015 14.8582 35.519 14.5998 35.1374 14.2865C34.7603 13.9807 34.4722 13.6317 34.2822 13.2457C34.1411 12.9621 34.052 12.6755 34.0149 12.3905H36.0268C36.0728 12.6147 36.1545 12.8181 36.2732 12.9948C36.4351 13.2383 36.6459 13.4343 36.8998 13.5813C37.1359 13.7253 37.415 13.8322 37.7239 13.8975C38.0193 13.9599 38.3282 13.9911 38.64 13.9911C39.0141 13.9911 39.3467 13.9569 39.6303 13.8901C39.9243 13.8218 40.1723 13.7253 40.3668 13.605C40.5717 13.4729 40.7276 13.3184 40.833 13.1432C40.9414 12.9606 40.9963 12.7587 40.9963 12.5419C40.9963 12.3251 40.9444 12.1291 40.8419 11.9584C40.7395 11.7906 40.5761 11.6421 40.343 11.504C40.1173 11.3838 39.8456 11.2798 39.5026 11.1818C39.176 11.0883 38.7603 10.9948 38.2643 10.9027C37.6675 10.7839 37.1121 10.631 36.6162 10.4513C36.1337 10.2761 35.7164 10.0608 35.3764 9.81288C35.0438 9.57531 34.7855 9.30063 34.6014 8.99328C34.4247 8.69633 34.3356 8.34592 34.3356 7.95394C34.3356 7.56195 34.4291 7.19373 34.6147 6.84184C34.8018 6.48549 35.0765 6.16626 35.4314 5.89455C35.7922 5.61689 36.2421 5.39417 36.7647 5.22936C37.2933 5.06307 37.9006 4.97992 38.5702 4.97992C39.274 4.97992 39.9124 5.06307 40.4692 5.22639C41.0201 5.38823 41.4908 5.61095 41.8724 5.8886C42.2346 6.16329 42.5182 6.4944 42.7113 6.86856C42.8597 7.15512 42.9503 7.46544 42.9845 7.7921H40.8538C40.836 7.68816 40.8078 7.58719 40.7706 7.4892C40.6979 7.30063 40.588 7.12691 40.4455 6.97547C40.2465 6.7765 39.9867 6.6206 39.6689 6.50924C39.3616 6.40085 38.9919 6.34592 38.5687 6.34592C38.2139 6.34592 37.8946 6.38155 37.6244 6.45282C37.3408 6.52706 37.1017 6.63694 36.9162 6.77651C36.7409 6.9042 36.6014 7.06158 36.5049 7.23976C36.4069 7.42238 36.3579 7.61838 36.3579 7.82476C36.3579 8.03115 36.4009 8.21674 36.4856 8.38898C36.5747 8.57309 36.7306 8.73493 36.9488 8.86856C37.1255 8.99031 37.372 9.10019 37.6912 9.1967C37.9911 9.28875 38.3742 9.36893 38.8286 9.43574C39.4462 9.53671 40.0312 9.66886 40.5643 9.82624C41.081 9.98066 41.5323 10.1796 41.905 10.4172C42.2599 10.6503 42.5435 10.9354 42.7439 11.2635C42.9384 11.5827 43.0379 11.9718 43.0379 12.4216C43.0379 12.8359 42.9384 13.2219 42.7395 13.5679C42.5375 13.9213 42.2465 14.2316 41.8753 14.4914C41.4893 14.7572 41.0141 14.968 40.4633 15.1165C39.905 15.268 39.271 15.3452 38.5791 15.3452L38.5806 15.3511Z" fill="currentColor"/><path d="M48.0743 15.3511C47.565 15.3511 47.0943 15.2724 46.6741 15.1165C46.2673 14.9651 45.9139 14.7201 45.6229 14.389C45.3259 14.0564 45.0913 13.6213 44.9265 13.0943C44.7573 12.5568 44.6711 11.8945 44.6711 11.1269V5.17443H46.7914V11.1462C46.7914 11.5946 46.8241 11.9807 46.8909 12.291C46.9622 12.6265 47.0809 12.9042 47.2443 13.115C47.4135 13.3407 47.6407 13.5055 47.9169 13.6035C48.1693 13.6926 48.4752 13.7372 48.8256 13.7372C49.1344 13.7372 49.421 13.7045 49.6749 13.6406C49.9347 13.5753 50.1693 13.4773 50.3712 13.3496C50.5479 13.2338 50.7038 13.0972 50.8389 12.9398C50.9711 12.7854 51.0869 12.6102 51.1819 12.4202L51.2131 12.3578V5.17294H53.3438V15.1447H51.4477L51.32 13.9257L51.2992 13.6941C50.9666 14.1826 50.4172 14.5954 49.954 14.8715C49.4982 15.1418 48.6177 15.3496 48.0757 15.3496L48.0743 15.3511Z" fill="currentColor"/><path d="M59.5428 15.3511C58.7855 15.3511 58.1099 15.2516 57.5353 15.0542C56.9637 14.8582 56.4811 14.5998 56.0995 14.2865C55.7224 13.9807 55.4344 13.6317 55.2443 13.2457C55.1033 12.9621 55.0142 12.6755 54.9771 12.3905H56.9889C57.035 12.6147 57.1166 12.8181 57.2354 12.9948C57.3972 13.2383 57.6081 13.4343 57.862 13.5813C58.0981 13.7253 58.3772 13.8322 58.686 13.8975C58.9815 13.9599 59.2903 13.9911 59.6021 13.9911C59.9763 13.9911 60.3089 13.9569 60.5925 13.8901C60.8865 13.8218 61.1344 13.7253 61.3289 13.605C61.5338 13.4729 61.6897 13.3184 61.7952 13.1432C61.9036 12.9606 61.9585 12.7587 61.9585 12.5419C61.9585 12.3251 61.9065 12.1291 61.8041 11.9584C61.7016 11.7906 61.5383 11.6421 61.3052 11.504C61.0795 11.3838 60.8078 11.2798 60.4648 11.1818C60.1381 11.0883 59.7224 10.9948 59.2265 10.9027C58.6296 10.7839 58.0743 10.631 57.5784 10.4513C57.0958 10.2761 56.6786 10.0608 56.3386 9.81288C56.006 9.57531 55.7476 9.30063 55.5635 8.99328C55.3868 8.69633 55.2978 8.34592 55.2978 7.95394C55.2978 7.56195 55.3913 7.19373 55.5769 6.84184C55.764 6.48549 56.0387 6.16626 56.3935 5.89455C56.7543 5.61689 57.2042 5.39417 57.7269 5.22936C58.2554 5.06307 58.8627 4.97992 59.5324 4.97992C60.2361 4.97992 60.8746 5.06307 61.4314 5.22639C61.9822 5.38823 62.4529 5.61095 62.8345 5.8886C63.1968 6.16329 63.4804 6.4944 63.6734 6.86856C63.8219 7.15512 63.9125 7.46544 63.9466 7.7921H61.816C61.7981 7.68816 61.7699 7.58719 61.7328 7.4892C61.6601 7.30063 61.5502 7.12691 61.4076 6.97547C61.2087 6.7765 60.9488 6.6206 60.6311 6.50924C60.3237 6.40085 59.954 6.34592 59.5309 6.34592C59.176 6.34592 58.8568 6.38155 58.5866 6.45282C58.303 6.52706 58.0639 6.63694 57.8783 6.77651C57.7031 6.9042 57.5635 7.06158 57.467 7.23976C57.369 7.42238 57.32 7.61838 57.32 7.82476C57.32 8.03115 57.3631 8.21674 57.4477 8.38898C57.5368 8.57309 57.6927 8.73493 57.911 8.86856C58.0877 8.99031 58.3341 9.10019 58.6534 9.1967C58.9533 9.28875 59.3364 9.36893 59.7907 9.43574C60.4084 9.53671 60.9934 9.66886 61.5264 9.82624C62.0431 9.98066 62.4945 10.1796 62.8672 10.4172C63.222 10.6503 63.5056 10.9354 63.7061 11.2635C63.9006 11.5827 64.0001 11.9718 64.0001 12.4216C64.0001 12.8359 63.9006 13.2219 63.7016 13.5679C63.4997 13.9213 63.2087 14.2316 62.8375 14.4914C62.4514 14.7572 61.9763 14.968 61.4255 15.1165C60.8672 15.268 60.2332 15.3452 59.5413 15.3452L59.5428 15.3511Z" fill="currentColor"/></svg>
+    <span class="camp-label">Camp 2026</span>
+  </a>
+
+  <!-- Controls: OUTSIDE .reveal to survive fullscreen mode -->
+  <div id="pres-controls">
+    <button id="theme-toggle" aria-label="Toggle theme">
+      <span id="theme-icon"></span>
+    </button>
+    <select id="lang-select" aria-label="Select language">
+      <option value="en">EN</option>
+      <option value="es">ES</option>
+      <option value="pt">PT</option>
+    </select>
+  </div>
+
+  <div class="reveal">
+    <div class="slides">
+
+      <!-- Slide 1: Title (hide watermark on this slide via JS) -->
+      <section data-hide-watermark>
+        <h1 style="font-size: 2em; display: flex; align-items: center; justify-content: center; gap: 14px;">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 16" fill="none" style="height: 0.75em;"><path d="M8.46476 15.3513L3.88867 7.9927L8.44695 1.05728H11.1908L6.33707 7.86798L11.4462 15.3513H8.46476Z" fill="currentColor"/><path d="M4.00879 15.3513V12.8271H-0.000119686V15.3513H4.00879Z" fill="currentColor" class="kelsus-cursor"/><path d="M18.1914 15.3482C17.4194 15.3482 16.7111 15.2205 16.086 14.9695C15.4609 14.7186 14.919 14.3712 14.4736 13.9391C14.0296 13.513 13.6822 13.0037 13.4431 12.4217C13.2026 11.8396 13.0793 11.2056 13.0793 10.539V10.1485C13.0793 9.38082 13.2011 8.67258 13.4401 8.04303C13.6792 7.41497 14.0162 6.86857 14.4424 6.4172C14.867 5.96731 15.3793 5.61245 15.9643 5.36301C16.5493 5.11356 17.1966 4.98587 17.8885 4.98587C18.5805 4.98587 19.2531 5.10465 19.8099 5.33925C20.3622 5.57236 20.8388 5.90346 21.2249 6.32514C21.6035 6.74682 21.8989 7.26501 22.0994 7.86486C22.3028 8.47214 22.4067 9.15514 22.4067 9.89456V10.7498H15.2397V11.1076L15.2456 11.1388C15.3422 11.5887 15.4713 11.9599 15.6287 12.242C15.7876 12.5286 16.0044 12.7899 16.2701 13.02C16.5433 13.2576 16.8596 13.4432 17.2115 13.5724C17.5619 13.7015 17.9479 13.7669 18.3592 13.7669C18.9279 13.7669 19.4877 13.6585 20.0222 13.4432C20.4572 13.268 20.8314 13.02 21.1387 12.7038L22.0994 13.7416C21.7787 14.1188 21.3125 14.4707 20.7082 14.7899C20.0058 15.1626 19.1595 15.3511 18.1914 15.3511V15.3482ZM17.8693 6.58944C17.5248 6.58944 17.2041 6.6518 16.9145 6.77355C16.6235 6.89678 16.3652 7.07644 16.1499 7.30807C15.9361 7.5293 15.7534 7.79953 15.6094 8.10836C15.4698 8.40978 15.3629 8.74831 15.2946 9.11653L15.2278 9.46842H20.3355V8.95617C20.3355 8.63249 20.2761 8.32217 20.1573 8.03264C20.04 7.74459 19.8737 7.4907 19.6658 7.2754C19.452 7.0616 19.1937 6.89381 18.8952 6.77206C18.5968 6.65031 18.2523 6.58944 17.8707 6.58944H17.8693Z" fill="currentColor"/><path d="M24.04 15.3511V13.7387H27.2041V2.56866H24.04V0.648834H29.3541V13.7387H32.3815V15.3511H24.04Z" fill="currentColor"/><path d="M38.5806 15.3511C37.8234 15.3511 37.1478 15.2516 36.5732 15.0542C36.0015 14.8582 35.519 14.5998 35.1374 14.2865C34.7603 13.9807 34.4722 13.6317 34.2822 13.2457C34.1411 12.9621 34.052 12.6755 34.0149 12.3905H36.0268C36.0728 12.6147 36.1545 12.8181 36.2732 12.9948C36.4351 13.2383 36.6459 13.4343 36.8998 13.5813C37.1359 13.7253 37.415 13.8322 37.7239 13.8975C38.0193 13.9599 38.3282 13.9911 38.64 13.9911C39.0141 13.9911 39.3467 13.9569 39.6303 13.8901C39.9243 13.8218 40.1723 13.7253 40.3668 13.605C40.5717 13.4729 40.7276 13.3184 40.833 13.1432C40.9414 12.9606 40.9963 12.7587 40.9963 12.5419C40.9963 12.3251 40.9444 12.1291 40.8419 11.9584C40.7395 11.7906 40.5761 11.6421 40.343 11.504C40.1173 11.3838 39.8456 11.2798 39.5026 11.1818C39.176 11.0883 38.7603 10.9948 38.2643 10.9027C37.6675 10.7839 37.1121 10.631 36.6162 10.4513C36.1337 10.2761 35.7164 10.0608 35.3764 9.81288C35.0438 9.57531 34.7855 9.30063 34.6014 8.99328C34.4247 8.69633 34.3356 8.34592 34.3356 7.95394C34.3356 7.56195 34.4291 7.19373 34.6147 6.84184C34.8018 6.48549 35.0765 6.16626 35.4314 5.89455C35.7922 5.61689 36.2421 5.39417 36.7647 5.22936C37.2933 5.06307 37.9006 4.97992 38.5702 4.97992C39.274 4.97992 39.9124 5.06307 40.4692 5.22639C41.0201 5.38823 41.4908 5.61095 41.8724 5.8886C42.2346 6.16329 42.5182 6.4944 42.7113 6.86856C42.8597 7.15512 42.9503 7.46544 42.9845 7.7921H40.8538C40.836 7.68816 40.8078 7.58719 40.7706 7.4892C40.6979 7.30063 40.588 7.12691 40.4455 6.97547C40.2465 6.7765 39.9867 6.6206 39.6689 6.50924C39.3616 6.40085 38.9919 6.34592 38.5687 6.34592C38.2139 6.34592 37.8946 6.38155 37.6244 6.45282C37.3408 6.52706 37.1017 6.63694 36.9162 6.77651C36.7409 6.9042 36.6014 7.06158 36.5049 7.23976C36.4069 7.42238 36.3579 7.61838 36.3579 7.82476C36.3579 8.03115 36.4009 8.21674 36.4856 8.38898C36.5747 8.57309 36.7306 8.73493 36.9488 8.86856C37.1255 8.99031 37.372 9.10019 37.6912 9.1967C37.9911 9.28875 38.3742 9.36893 38.8286 9.43574C39.4462 9.53671 40.0312 9.66886 40.5643 9.82624C41.081 9.98066 41.5323 10.1796 41.905 10.4172C42.2599 10.6503 42.5435 10.9354 42.7439 11.2635C42.9384 11.5827 43.0379 11.9718 43.0379 12.4216C43.0379 12.8359 42.9384 13.2219 42.7395 13.5679C42.5375 13.9213 42.2465 14.2316 41.8753 14.4914C41.4893 14.7572 41.0141 14.968 40.4633 15.1165C39.905 15.268 39.271 15.3452 38.5791 15.3452L38.5806 15.3511Z" fill="currentColor"/><path d="M48.0743 15.3511C47.565 15.3511 47.0943 15.2724 46.6741 15.1165C46.2673 14.9651 45.9139 14.7201 45.6229 14.389C45.3259 14.0564 45.0913 13.6213 44.9265 13.0943C44.7573 12.5568 44.6711 11.8945 44.6711 11.1269V5.17443H46.7914V11.1462C46.7914 11.5946 46.8241 11.9807 46.8909 12.291C46.9622 12.6265 47.0809 12.9042 47.2443 13.115C47.4135 13.3407 47.6407 13.5055 47.9169 13.6035C48.1693 13.6926 48.4752 13.7372 48.8256 13.7372C49.1344 13.7372 49.421 13.7045 49.6749 13.6406C49.9347 13.5753 50.1693 13.4773 50.3712 13.3496C50.5479 13.2338 50.7038 13.0972 50.8389 12.9398C50.9711 12.7854 51.0869 12.6102 51.1819 12.4202L51.2131 12.3578V5.17294H53.3438V15.1447H51.4477L51.32 13.9257L51.2992 13.6941C50.9666 14.1826 50.4172 14.5954 49.954 14.8715C49.4982 15.1418 48.6177 15.3496 48.0757 15.3496L48.0743 15.3511Z" fill="currentColor"/><path d="M59.5428 15.3511C58.7855 15.3511 58.1099 15.2516 57.5353 15.0542C56.9637 14.8582 56.4811 14.5998 56.0995 14.2865C55.7224 13.9807 55.4344 13.6317 55.2443 13.2457C55.1033 12.9621 55.0142 12.6755 54.9771 12.3905H56.9889C57.035 12.6147 57.1166 12.8181 57.2354 12.9948C57.3972 13.2383 57.6081 13.4343 57.862 13.5813C58.0981 13.7253 58.3772 13.8322 58.686 13.8975C58.9815 13.9599 59.2903 13.9911 59.6021 13.9911C59.9763 13.9911 60.3089 13.9569 60.5925 13.8901C60.8865 13.8218 61.1344 13.7253 61.3289 13.605C61.5338 13.4729 61.6897 13.3184 61.7952 13.1432C61.9036 12.9606 61.9585 12.7587 61.9585 12.5419C61.9585 12.3251 61.9065 12.1291 61.8041 11.9584C61.7016 11.7906 61.5383 11.6421 61.3052 11.504C61.0795 11.3838 60.8078 11.2798 60.4648 11.1818C60.1381 11.0883 59.7224 10.9948 59.2265 10.9027C58.6296 10.7839 58.0743 10.631 57.5784 10.4513C57.0958 10.2761 56.6786 10.0608 56.3386 9.81288C56.006 9.57531 55.7476 9.30063 55.5635 8.99328C55.3868 8.69633 55.2978 8.34592 55.2978 7.95394C55.2978 7.56195 55.3913 7.19373 55.5769 6.84184C55.764 6.48549 56.0387 6.16626 56.3935 5.89455C56.7543 5.61689 57.2042 5.39417 57.7269 5.22936C58.2554 5.06307 58.8627 4.97992 59.5324 4.97992C60.2361 4.97992 60.8746 5.06307 61.4314 5.22639C61.9822 5.38823 62.4529 5.61095 62.8345 5.8886C63.1968 6.16329 63.4804 6.4944 63.6734 6.86856C63.8219 7.15512 63.9125 7.46544 63.9466 7.7921H61.816C61.7981 7.68816 61.7699 7.58719 61.7328 7.4892C61.6601 7.30063 61.5502 7.12691 61.4076 6.97547C61.2087 6.7765 60.9488 6.6206 60.6311 6.50924C60.3237 6.40085 59.954 6.34592 59.5309 6.34592C59.176 6.34592 58.8568 6.38155 58.5866 6.45282C58.303 6.52706 58.0639 6.63694 57.8783 6.77651C57.7031 6.9042 57.5635 7.06158 57.467 7.23976C57.369 7.42238 57.32 7.61838 57.32 7.82476C57.32 8.03115 57.3631 8.21674 57.4477 8.38898C57.5368 8.57309 57.6927 8.73493 57.911 8.86856C58.0877 8.99031 58.3341 9.10019 58.6534 9.1967C58.9533 9.28875 59.3364 9.36893 59.7907 9.43574C60.4084 9.53671 60.9934 9.66886 61.5264 9.82624C62.0431 9.98066 62.4945 10.1796 62.8672 10.4172C63.222 10.6503 63.5056 10.9354 63.7061 11.2635C63.9006 11.5827 64.0001 11.9718 64.0001 12.4216C64.0001 12.8359 63.9006 13.2219 63.7016 13.5679C63.4997 13.9213 63.2087 14.2316 62.8375 14.4914C62.4514 14.7572 61.9763 14.968 61.4255 15.1165C60.8672 15.268 60.2332 15.3452 59.5413 15.3452L59.5428 15.3511Z" fill="currentColor"/></svg>
+          <span style="color: var(--accent); font-size: 1.2em;">Camp 2026</span>
+        </h1>
+        <h1 data-i18n="title" style="font-size: 1.4em; margin-top: 0.3em;">Compound Engineering Plugin</h1>
+        <p style="font-size: 0.45em; color: var(--muted); margin-top: 0.1em;">
+          <span data-i18n="by">By</span> <a href="https://github.com/EveryInc" target="_blank" rel="noopener" style="color: var(--muted);"><strong>Every Inc</strong></a> &middot;
+          <a href="https://github.com/EveryInc/compound-engineering-plugin" target="_blank" rel="noopener" style="color: var(--muted);">github.com/EveryInc/compound-engineering-plugin</a>
+        </p>
+        <p class="subtitle" data-i18n="subtitle">Making each unit of work easier than the last</p>
+        <p class="presenter" style="margin-top: 1em;" data-i18n="presented_by">Presented by</p>
+        <p style="font-size: 0.9em; font-weight: 600; color: var(--text-primary); margin-top: 0.1em;">Joaqu&iacute;n Pacce</p>
+      </section>
+
+      <!-- Slide 2: What Is It? -->
+      <section>
+        <h2 data-i18n="s2.title">What Is It?</h2>
+        <ul>
+          <li data-i18n="s2.item1">A <span class="highlight">plugin for AI coding editors</span> (Claude Code, Cursor, and more)</li>
+          <li data-i18n="s2.item2">Adds specialized <strong>agents</strong>, <strong>skills</strong>, and <strong>workflows</strong></li>
+          <li data-i18n="s2.item3">Structures your AI-assisted development into a repeatable cycle</li>
+        </ul>
+        <br>
+        <p class="small" data-i18n="s2.stats">14,000+ stars &middot; 94 releases &middot; MIT licensed &middot; Open source</p>
+      </section>
+
+      <!-- Slide 3: The Core Philosophy -->
+      <section>
+        <h2 data-i18n="s3.title">The Core Philosophy</h2>
+        <blockquote data-i18n="s3.quote">
+          "Each unit of engineering work should make subsequent units easier &mdash; not harder."
+        </blockquote>
+        <ul>
+          <li data-i18n="s3.item1">Inverts the traditional <strong>technical debt</strong> trajectory</li>
+          <li data-i18n="s3.item2"><span class="highlight">80% Planning &amp; Review</span> / 20% Execution</li>
+          <li data-i18n="s3.item3">Knowledge from each cycle feeds into the next</li>
+        </ul>
+      </section>
+
+      <!-- Slide 4: The Workflow Cycle -->
+      <section>
+        <h2 data-i18n="s4.title">The Workflow Cycle</h2>
+        <div class="workflow">
+          <span class="workflow-box optional" data-i18n="wf.ideate">Ideate</span>
+          <span class="arrow">&rarr;</span>
+          <span class="workflow-box" data-i18n="wf.brainstorm">Brainstorm</span>
+          <span class="arrow">&rarr;</span>
+          <span class="workflow-box" data-i18n="wf.plan">Plan</span>
+          <span class="arrow">&rarr;</span>
+          <span class="workflow-box" data-i18n="wf.work">Work</span>
+          <span class="arrow">&rarr;</span>
+          <span class="workflow-box" data-i18n="wf.review">Review</span>
+          <span class="arrow">&rarr;</span>
+          <span class="workflow-box" data-i18n="wf.compound">Compound</span>
+        </div>
+        <p class="loop-arrow" data-i18n="s4.loop">&larr;&larr;&larr; repeat &mdash; each cycle compounds knowledge &rarr;&rarr;&rarr;</p>
+        <p class="small" style="margin-top: 20px;" data-i18n="s4.note">Ideate is optional &middot; All other steps recommended by docs</p>
+      </section>
+
+      <!-- Slide 5: Key Commands -->
+      <section>
+        <h2 data-i18n="s5.title">Key Commands</h2>
+        <table class="cmd-table">
+          <tr>
+            <td>/ce:ideate<span class="aliases">/workflows:ideate &middot; /compound-engineering:workflows:ideate</span></td>
+            <td data-i18n="s5.cmd1">Surface high-impact improvements</td>
+          </tr>
+          <tr>
+            <td>/ce:brainstorm<span class="aliases">/workflows:brainstorm &middot; /compound-engineering:workflows:brainstorm</span></td>
+            <td data-i18n="s5.cmd2">Explore requirements interactively</td>
+          </tr>
+          <tr>
+            <td>/ce:plan<span class="aliases">/workflows:plan &middot; /compound-engineering:workflows:plan</span></td>
+            <td data-i18n="s5.cmd3">Convert ideas into technical plans</td>
+          </tr>
+          <tr>
+            <td>/ce:work<span class="aliases">/workflows:work &middot; /compound-engineering:workflows:work</span></td>
+            <td data-i18n="s5.cmd4">Execute with worktrees &amp; task tracking</td>
+          </tr>
+          <tr>
+            <td>/ce:review<span class="aliases">/workflows:review &middot; /compound-engineering:workflows:review</span></td>
+            <td data-i18n="s5.cmd5">Multi-agent code review</td>
+          </tr>
+          <tr>
+            <td>/ce:compound<span class="aliases">/workflows:compound &middot; /compound-engineering:workflows:compound</span></td>
+            <td data-i18n="s5.cmd6">Document learnings for reuse</td>
+          </tr>
+        </table>
+      </section>
+
+      <!-- Slide 6: How It Works — Brainstorm & Plan -->
+      <section>
+        <h2 data-i18n="s6.title">Brainstorm &amp; Plan</h2>
+        <ul>
+          <li data-i18n="s6.item1"><strong>Brainstorm</strong> refines ideas through interactive Q&amp;A</li>
+          <li data-i18n="s6.item2">Short-circuits when the idea is already clear</li>
+          <li data-i18n="s6.item3"><strong>Plan</strong> converts requirements into actionable technical specs</li>
+          <li data-i18n="s6.item4">Research agents automatically gather codebase context and best practices</li>
+          <li data-i18n="s6.item5">Plans are saved as markdown files in <code>docs/plans/</code></li>
+        </ul>
+      </section>
+
+      <!-- Slide 7: How It Works — Work & Review -->
+      <section>
+        <h2 data-i18n="s7.title">Work &amp; Review</h2>
+        <ul>
+          <li data-i18n="s7.item1"><strong>Work</strong> uses Git worktrees for isolated, parallel execution</li>
+          <li data-i18n="s7.item2">Tasks tracked with built-in todo system</li>
+          <li data-i18n="s7.item3">Incremental commits as logical units complete</li>
+          <li data-i18n="s7.item4"><strong>Review</strong> deploys multiple specialized reviewer agents:</li>
+          <li style="padding-left: 1.5em; list-style: none;" data-i18n="s7.item5">Security &middot; Performance &middot; Architecture &middot; Rails (DHH) &middot; Simplicity</li>
+        </ul>
+      </section>
+
+      <!-- Slide 8: How It Works — Compound -->
+      <section>
+        <h2 data-i18n="s8.title">Compound</h2>
+        <ul>
+          <li data-i18n="s8.item1">Documents solutions, gotchas, and learnings after each cycle</li>
+          <li data-i18n="s8.item2">Stored in <code>docs/solutions/</code> for future reference</li>
+          <li data-i18n="s8.item3">AI agents <strong>automatically reference</strong> past learnings in future work</li>
+          <li data-i18n="s8.item4">Each cycle makes the next one faster and better informed</li>
+        </ul>
+        <br>
+        <p class="small" data-i18n="s8.note">This is the step that makes the whole system "compound"</p>
+      </section>
+
+      <!-- Slide 9: In Practice -->
+      <section>
+        <h2 data-i18n="s9.title">In Practice</h2>
+        <p style="font-size: 0.7em; color: var(--muted); margin-bottom: 15px;" data-i18n="s9.subtitle">You don't need every step every time</p>
+
+        <p style="font-size: 0.6em; color: var(--accent); margin-bottom: 8px; text-align: left;" data-i18n="s9.doc_label"><strong>Documentation flow:</strong></p>
+        <div class="workflow">
+          <span class="workflow-box optional" data-i18n="wf.ideate">Ideate</span>
+          <span class="arrow">&rarr;</span>
+          <span class="workflow-box" data-i18n="wf.brainstorm">Brainstorm</span>
+          <span class="arrow">&rarr;</span>
+          <span class="workflow-box" data-i18n="wf.plan">Plan</span>
+          <span class="arrow">&rarr;</span>
+          <span class="workflow-box" data-i18n="wf.work">Work</span>
+          <span class="arrow">&rarr;</span>
+          <span class="workflow-box" data-i18n="wf.review">Review</span>
+          <span class="arrow">&rarr;</span>
+          <span class="workflow-box" data-i18n="wf.compound">Compound</span>
+        </div>
+        <p class="small" style="margin-bottom: 25px;" data-i18n="s9.doc_note">Full cycle as recommended by the docs</p>
+
+        <p style="font-size: 0.6em; color: var(--green); margin-bottom: 8px; text-align: left;" data-i18n="s9.my_label"><strong>My flow:</strong></p>
+        <div class="workflow">
+          <span class="workflow-box" data-i18n="wf.plan">Plan</span>
+          <span class="arrow">&rarr;</span>
+          <span class="workflow-box" data-i18n="wf.work">Work</span>
+          <span class="arrow">&rarr;</span>
+          <span class="workflow-box" data-i18n="wf.review">Review</span>
+          <span class="arrow">&rarr;</span>
+          <span class="workflow-box optional" data-i18n="wf.compound">Compound</span>
+        </div>
+        <p class="small" data-i18n="s9.my_note">Core: Plan &rarr; Work &rarr; Review &middot; Compound when needed</p>
+      </section>
+
+      <!-- Slide 10: Multi-Platform Support -->
+      <section>
+        <h2 data-i18n="s10.title">Multi-Platform Support</h2>
+        <p style="margin-bottom: 15px;">
+          <span class="badge primary">Claude Code</span>
+          <span class="badge primary">Cursor</span>
+        </p>
+        <p style="margin-bottom: 15px;">
+          <span class="badge experimental">OpenCode</span>
+          <span class="badge experimental">Codex</span>
+          <span class="badge experimental">Gemini CLI</span>
+          <span class="badge experimental">GitHub Copilot</span>
+          <span class="badge experimental">Kiro</span>
+          <span class="badge experimental">Windsurf</span>
+          <span class="badge experimental">OpenClaw</span>
+          <span class="badge experimental">Qwen Code</span>
+        </p>
+        <p class="small">
+          <span class="pros" data-i18n="s10.legend_green">Green = primary support</span> &middot;
+          <span style="color: var(--muted);" data-i18n="s10.legend_gray">Gray = experimental</span><br>
+          <span data-i18n="s10.note">CLI converts plugin format between platforms automatically</span>
+        </p>
+      </section>
+
+      <!-- Slide 11: Tech Stack -->
+      <section>
+        <h2 data-i18n="s11.title">Tech Stack</h2>
+        <ul>
+          <li data-i18n="s11.item1"><strong>TypeScript</strong> (76.4%) &mdash; core plugin code</li>
+          <li data-i18n="s11.item2"><strong>Python</strong> (10.9%) &middot; <strong>JavaScript</strong> (6.4%) &middot; <strong>Shell</strong> (3.9%) &middot; <strong>Ruby</strong> (2.4%)</li>
+          <li data-i18n="s11.item3"><strong>Bun</strong> runtime &amp; package manager</li>
+          <li data-i18n="s11.item4"><strong>MCP Server</strong> integration (Model Context Protocol)</li>
+          <li data-i18n="s11.item5"><strong>MIT License</strong> &mdash; fully open source</li>
+        </ul>
+        <br>
+        <p class="small" data-i18n="s11.stats">619 commits &middot; 36 open issues &middot; 23 PRs &middot; v2.65.0</p>
+      </section>
+
+      <!-- Slide 12: Pros -->
+      <section>
+        <h2 class="pros" data-i18n="s12.title">Pros</h2>
+        <ul>
+          <li data-i18n="s12.item1"><strong class="pros">Knowledge compounds over time</strong> &mdash; documented learnings accelerate future work</li>
+          <li data-i18n="s12.item2"><strong class="pros">Quality preservation</strong> &mdash; rigorous review prevents tech debt accumulation</li>
+          <li data-i18n="s12.item3"><strong class="pros">Multi-agent review</strong> &mdash; catches issues from security, performance, and architecture perspectives</li>
+          <li data-i18n="s12.item4"><strong class="pros">Platform-agnostic</strong> &mdash; works across many AI editors, not just Claude Code</li>
+          <li data-i18n="s12.item5"><strong class="pros">Open source (MIT)</strong> &mdash; free to use, modify, and contribute</li>
+          <li data-i18n="s12.item6"><strong class="pros">Active development</strong> &mdash; 14k stars, 94 releases, strong community</li>
+        </ul>
+      </section>
+
+      <!-- Slide 13: Cons -->
+      <section>
+        <h2 class="cons" data-i18n="s13.title">Cons</h2>
+        <ul>
+          <li data-i18n="s13.item1"><strong class="cons">Heavy upfront investment</strong> &mdash; 80/20 planning ratio slows initial velocity</li>
+          <li data-i18n="s13.item2"><strong class="cons">Dependency-heavy</strong> &mdash; requires agent-browser, gh, jq, vhs, silicon, ffmpeg</li>
+          <li data-i18n="s13.item3"><strong class="cons">Experimental cross-platform</strong> &mdash; non-Claude editors may break</li>
+          <li data-i18n="s13.item4"><strong class="cons">Learning curve</strong> &mdash; 6 workflow commands with specific sequencing</li>
+          <li data-i18n="s13.item5"><strong class="cons">MCP limitations</strong> &mdash; some platforms only support stdio servers</li>
+          <li data-i18n="s13.item6"><strong class="cons">Opinionated workflow</strong> &mdash; may not suit all teams or styles</li>
+        </ul>
+      </section>
+
+      <!-- Slide 14: When to Use It -->
+      <section>
+        <h2 data-i18n="s14.title">When to Use It</h2>
+        <ul>
+          <li data-i18n="s14.item1">Teams doing <strong>AI-assisted development</strong></li>
+          <li data-i18n="s14.item2">Projects where <strong>quality and documentation</strong> matter</li>
+          <li data-i18n="s14.item3">Codebases that will be <strong>maintained long-term</strong></li>
+          <li data-i18n="s14.item4">When you want each sprint to be <strong>faster than the last</strong></li>
+        </ul>
+      </section>
+
+      <!-- Slide 15: When NOT to Use It -->
+      <section>
+        <h2 data-i18n="s15.title">When NOT to Use It</h2>
+        <ul>
+          <li data-i18n="s15.item1">Quick prototypes or throwaway scripts</li>
+          <li data-i18n="s15.item2">Solo side projects with no future maintenance</li>
+          <li data-i18n="s15.item3">Teams not using AI coding tools</li>
+          <li data-i18n="s15.item4">When you need to ship fast with minimal process</li>
+        </ul>
+      </section>
+
+      <!-- Slide 16: Getting Started -->
+      <section>
+        <h2 data-i18n="s16.title">Getting Started</h2>
+        <ul>
+          <li data-i18n="s16.item1"><strong>Install:</strong> <code>/plugin marketplace add EveryInc/compound-engineering-plugin</code></li>
+          <li data-i18n="s16.item2"><strong>Setup:</strong> <code>/ce-setup</code></li>
+          <li data-i18n="s16.item3"><strong>Start:</strong> <code>/ce:brainstorm</code></li>
+        </ul>
+        <br>
+        <p class="small">
+          <span data-i18n="s16.also">Also available as:</span><br>
+          <code>/workflows:brainstorm</code> &middot; <code>/compound-engineering:workflows:brainstorm</code>
+        </p>
+        <br>
+        <p>
+          <a href="https://github.com/EveryInc/compound-engineering-plugin" target="_blank" rel="noopener" style="color: var(--accent);">
+            github.com/EveryInc/compound-engineering-plugin
+          </a>
+        </p>
+      </section>
+
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.js"></script>
+  <script>
+    // ── Translation Dictionary ──
+    const translations = {
+      en: {
+        "title": "Compound Engineering Plugin",
+        "subtitle": "Making each unit of work easier than the last",
+        "by": "By",
+        "presented_by": "Presented by",
+
+        "s2.title": "What Is It?",
+        "s2.item1": "A <span class=\"highlight\">plugin for AI coding editors</span> (Claude Code, Cursor, and more)",
+        "s2.item2": "Adds specialized <strong>agents</strong>, <strong>skills</strong>, and <strong>workflows</strong>",
+        "s2.item3": "Structures your AI-assisted development into a repeatable cycle",
+        "s2.stats": "14,000+ stars &middot; 94 releases &middot; MIT licensed &middot; Open source",
+
+        "s3.title": "The Core Philosophy",
+        "s3.quote": "&ldquo;Each unit of engineering work should make subsequent units easier &mdash; not harder.&rdquo;",
+        "s3.item1": "Inverts the traditional <strong>technical debt</strong> trajectory",
+        "s3.item2": "<span class=\"highlight\">80% Planning &amp; Review</span> / 20% Execution",
+        "s3.item3": "Knowledge from each cycle feeds into the next",
+
+        "s4.title": "The Workflow Cycle",
+        "wf.ideate": "Ideate",
+        "wf.brainstorm": "Brainstorm",
+        "wf.plan": "Plan",
+        "wf.work": "Work",
+        "wf.review": "Review",
+        "wf.compound": "Compound",
+        "s4.loop": "&larr;&larr;&larr; repeat &mdash; each cycle compounds knowledge &rarr;&rarr;&rarr;",
+        "s4.note": "Ideate is optional &middot; All other steps recommended by docs",
+
+        "s5.title": "Key Commands",
+        "s5.cmd1": "Surface high-impact improvements",
+        "s5.cmd2": "Explore requirements interactively",
+        "s5.cmd3": "Convert ideas into technical plans",
+        "s5.cmd4": "Execute with worktrees &amp; task tracking",
+        "s5.cmd5": "Multi-agent code review",
+        "s5.cmd6": "Document learnings for reuse",
+
+        "s6.title": "Brainstorm &amp; Plan",
+        "s6.item1": "<strong>Brainstorm</strong> refines ideas through interactive Q&amp;A",
+        "s6.item2": "Short-circuits when the idea is already clear",
+        "s6.item3": "<strong>Plan</strong> converts requirements into actionable technical specs",
+        "s6.item4": "Research agents automatically gather codebase context and best practices",
+        "s6.item5": "Plans are saved as markdown files in <code>docs/plans/</code>",
+
+        "s7.title": "Work &amp; Review",
+        "s7.item1": "<strong>Work</strong> uses Git worktrees for isolated, parallel execution",
+        "s7.item2": "Tasks tracked with built-in todo system",
+        "s7.item3": "Incremental commits as logical units complete",
+        "s7.item4": "<strong>Review</strong> deploys multiple specialized reviewer agents:",
+        "s7.item5": "Security &middot; Performance &middot; Architecture &middot; Rails (DHH) &middot; Simplicity",
+
+        "s8.title": "Compound",
+        "s8.item1": "Documents solutions, gotchas, and learnings after each cycle",
+        "s8.item2": "Stored in <code>docs/solutions/</code> for future reference",
+        "s8.item3": "AI agents <strong>automatically reference</strong> past learnings in future work",
+        "s8.item4": "Each cycle makes the next one faster and better informed",
+        "s8.note": "This is the step that makes the whole system &ldquo;compound&rdquo;",
+
+        "s9.title": "In Practice",
+        "s9.subtitle": "You don't need every step every time",
+        "s9.doc_label": "<strong>Documentation flow:</strong>",
+        "s9.doc_note": "Full cycle as recommended by the docs",
+        "s9.my_label": "<strong>My flow:</strong>",
+        "s9.my_note": "Core: Plan &rarr; Work &rarr; Review &middot; Compound when needed",
+
+        "s10.title": "Multi-Platform Support",
+        "s10.legend_green": "Green = primary support",
+        "s10.legend_gray": "Gray = experimental",
+        "s10.note": "CLI converts plugin format between platforms automatically",
+
+        "s11.title": "Tech Stack",
+        "s11.item1": "<strong>TypeScript</strong> (76.4%) &mdash; core plugin code",
+        "s11.item2": "<strong>Python</strong> (10.9%) &middot; <strong>JavaScript</strong> (6.4%) &middot; <strong>Shell</strong> (3.9%) &middot; <strong>Ruby</strong> (2.4%)",
+        "s11.item3": "<strong>Bun</strong> runtime &amp; package manager",
+        "s11.item4": "<strong>MCP Server</strong> integration (Model Context Protocol)",
+        "s11.item5": "<strong>MIT License</strong> &mdash; fully open source",
+        "s11.stats": "619 commits &middot; 36 open issues &middot; 23 PRs &middot; v2.65.0",
+
+        "s12.title": "Pros",
+        "s12.item1": "<strong class=\"pros\">Knowledge compounds over time</strong> &mdash; documented learnings accelerate future work",
+        "s12.item2": "<strong class=\"pros\">Quality preservation</strong> &mdash; rigorous review prevents tech debt accumulation",
+        "s12.item3": "<strong class=\"pros\">Multi-agent review</strong> &mdash; catches issues from security, performance, and architecture perspectives",
+        "s12.item4": "<strong class=\"pros\">Platform-agnostic</strong> &mdash; works across many AI editors, not just Claude Code",
+        "s12.item5": "<strong class=\"pros\">Open source (MIT)</strong> &mdash; free to use, modify, and contribute",
+        "s12.item6": "<strong class=\"pros\">Active development</strong> &mdash; 14k stars, 94 releases, strong community",
+
+        "s13.title": "Cons",
+        "s13.item1": "<strong class=\"cons\">Heavy upfront investment</strong> &mdash; 80/20 planning ratio slows initial velocity",
+        "s13.item2": "<strong class=\"cons\">Dependency-heavy</strong> &mdash; requires agent-browser, gh, jq, vhs, silicon, ffmpeg",
+        "s13.item3": "<strong class=\"cons\">Experimental cross-platform</strong> &mdash; non-Claude editors may break",
+        "s13.item4": "<strong class=\"cons\">Learning curve</strong> &mdash; 6 workflow commands with specific sequencing",
+        "s13.item5": "<strong class=\"cons\">MCP limitations</strong> &mdash; some platforms only support stdio servers",
+        "s13.item6": "<strong class=\"cons\">Opinionated workflow</strong> &mdash; may not suit all teams or styles",
+
+        "s14.title": "When to Use It",
+        "s14.item1": "Teams doing <strong>AI-assisted development</strong>",
+        "s14.item2": "Projects where <strong>quality and documentation</strong> matter",
+        "s14.item3": "Codebases that will be <strong>maintained long-term</strong>",
+        "s14.item4": "When you want each sprint to be <strong>faster than the last</strong>",
+
+        "s15.title": "When NOT to Use It",
+        "s15.item1": "Quick prototypes or throwaway scripts",
+        "s15.item2": "Solo side projects with no future maintenance",
+        "s15.item3": "Teams not using AI coding tools",
+        "s15.item4": "When you need to ship fast with minimal process",
+
+        "s16.title": "Getting Started",
+        "s16.item1": "<strong>Install:</strong> <code>/plugin marketplace add EveryInc/compound-engineering-plugin</code>",
+        "s16.item2": "<strong>Setup:</strong> <code>/ce-setup</code>",
+        "s16.item3": "<strong>Start:</strong> <code>/ce:brainstorm</code>",
+        "s16.also": "Also available as:"
+      },
+
+      es: {
+        "title": "Plugin de Ingenier\u00eda Compuesta",
+        "subtitle": "Haciendo cada unidad de trabajo m\u00e1s f\u00e1cil que la anterior",
+        "by": "Por",
+        "presented_by": "Presentado por",
+
+        "s2.title": "\u00bfQu\u00e9 Es?",
+        "s2.item1": "Un <span class=\"highlight\">plugin para editores de c\u00f3digo con IA</span> (Claude Code, Cursor y m\u00e1s)",
+        "s2.item2": "A\u00f1ade <strong>agentes</strong>, <strong>habilidades</strong> y <strong>flujos de trabajo</strong> especializados",
+        "s2.item3": "Estructura tu desarrollo asistido por IA en un ciclo repetible",
+        "s2.stats": "14,000+ estrellas &middot; 94 versiones &middot; Licencia MIT &middot; C\u00f3digo abierto",
+
+        "s3.title": "La Filosof\u00eda Central",
+        "s3.quote": "&ldquo;Cada unidad de trabajo de ingenier\u00eda debe hacer que las siguientes sean m\u00e1s f\u00e1ciles &mdash; no m\u00e1s dif\u00edciles.&rdquo;",
+        "s3.item1": "Invierte la trayectoria tradicional de la <strong>deuda t\u00e9cnica</strong>",
+        "s3.item2": "<span class=\"highlight\">80% Planificaci\u00f3n y Revisi\u00f3n</span> / 20% Ejecuci\u00f3n",
+        "s3.item3": "El conocimiento de cada ciclo alimenta al siguiente",
+
+        "s4.title": "El Ciclo de Trabajo",
+        "wf.ideate": "Idear",
+        "wf.brainstorm": "Lluvia de Ideas",
+        "wf.plan": "Planificar",
+        "wf.work": "Trabajar",
+        "wf.review": "Revisar",
+        "wf.compound": "Componer",
+        "s4.loop": "&larr;&larr;&larr; repetir &mdash; cada ciclo acumula conocimiento &rarr;&rarr;&rarr;",
+        "s4.note": "Idear es opcional &middot; Todos los dem\u00e1s pasos recomendados por la documentaci\u00f3n",
+
+        "s5.title": "Comandos Clave",
+        "s5.cmd1": "Detectar mejoras de alto impacto",
+        "s5.cmd2": "Explorar requisitos interactivamente",
+        "s5.cmd3": "Convertir ideas en planes t\u00e9cnicos",
+        "s5.cmd4": "Ejecutar con worktrees y seguimiento de tareas",
+        "s5.cmd5": "Revisi\u00f3n de c\u00f3digo multi-agente",
+        "s5.cmd6": "Documentar aprendizajes para reutilizar",
+
+        "s6.title": "Lluvia de Ideas y Planificaci\u00f3n",
+        "s6.item1": "<strong>Brainstorm</strong> refina ideas a trav\u00e9s de preguntas y respuestas interactivas",
+        "s6.item2": "Se abrevia cuando la idea ya est\u00e1 clara",
+        "s6.item3": "<strong>Plan</strong> convierte requisitos en especificaciones t\u00e9cnicas accionables",
+        "s6.item4": "Agentes de investigaci\u00f3n recopilan contexto del c\u00f3digo y mejores pr\u00e1cticas autom\u00e1ticamente",
+        "s6.item5": "Los planes se guardan como archivos markdown en <code>docs/plans/</code>",
+
+        "s7.title": "Trabajo y Revisi\u00f3n",
+        "s7.item1": "<strong>Work</strong> usa Git worktrees para ejecuci\u00f3n aislada y paralela",
+        "s7.item2": "Tareas rastreadas con sistema de tareas integrado",
+        "s7.item3": "Commits incrementales a medida que se completan unidades l\u00f3gicas",
+        "s7.item4": "<strong>Review</strong> despliega m\u00faltiples agentes revisores especializados:",
+        "s7.item5": "Seguridad &middot; Rendimiento &middot; Arquitectura &middot; Rails (DHH) &middot; Simplicidad",
+
+        "s8.title": "Componer",
+        "s8.item1": "Documenta soluciones, problemas encontrados y aprendizajes despu\u00e9s de cada ciclo",
+        "s8.item2": "Almacenados en <code>docs/solutions/</code> para referencia futura",
+        "s8.item3": "Los agentes de IA <strong>referencian autom\u00e1ticamente</strong> aprendizajes previos en trabajo futuro",
+        "s8.item4": "Cada ciclo hace que el siguiente sea m\u00e1s r\u00e1pido y mejor informado",
+        "s8.note": "Este es el paso que hace que todo el sistema sea &ldquo;compuesto&rdquo;",
+
+        "s9.title": "En la Pr\u00e1ctica",
+        "s9.subtitle": "No necesitas cada paso en cada ocasi\u00f3n",
+        "s9.doc_label": "<strong>Flujo de documentaci\u00f3n:</strong>",
+        "s9.doc_note": "Ciclo completo como recomienda la documentaci\u00f3n",
+        "s9.my_label": "<strong>Mi flujo:</strong>",
+        "s9.my_note": "Base: Planificar &rarr; Trabajar &rarr; Revisar &middot; Componer cuando sea necesario",
+
+        "s10.title": "Soporte Multi-Plataforma",
+        "s10.legend_green": "Verde = soporte principal",
+        "s10.legend_gray": "Gris = experimental",
+        "s10.note": "El CLI convierte el formato del plugin entre plataformas autom\u00e1ticamente",
+
+        "s11.title": "Stack Tecnol\u00f3gico",
+        "s11.item1": "<strong>TypeScript</strong> (76.4%) &mdash; c\u00f3digo principal del plugin",
+        "s11.item2": "<strong>Python</strong> (10.9%) &middot; <strong>JavaScript</strong> (6.4%) &middot; <strong>Shell</strong> (3.9%) &middot; <strong>Ruby</strong> (2.4%)",
+        "s11.item3": "<strong>Bun</strong> runtime y gestor de paquetes",
+        "s11.item4": "<strong>MCP Server</strong> integraci\u00f3n (Model Context Protocol)",
+        "s11.item5": "<strong>Licencia MIT</strong> &mdash; totalmente c\u00f3digo abierto",
+        "s11.stats": "619 commits &middot; 36 issues abiertos &middot; 23 PRs &middot; v2.65.0",
+
+        "s12.title": "Ventajas",
+        "s12.item1": "<strong class=\"pros\">El conocimiento se acumula</strong> &mdash; los aprendizajes documentados aceleran el trabajo futuro",
+        "s12.item2": "<strong class=\"pros\">Preservaci\u00f3n de calidad</strong> &mdash; revisi\u00f3n rigurosa previene la acumulaci\u00f3n de deuda t\u00e9cnica",
+        "s12.item3": "<strong class=\"pros\">Revisi\u00f3n multi-agente</strong> &mdash; detecta problemas de seguridad, rendimiento y arquitectura",
+        "s12.item4": "<strong class=\"pros\">Agnóstico de plataforma</strong> &mdash; funciona en muchos editores de IA, no solo Claude Code",
+        "s12.item5": "<strong class=\"pros\">C\u00f3digo abierto (MIT)</strong> &mdash; libre para usar, modificar y contribuir",
+        "s12.item6": "<strong class=\"pros\">Desarrollo activo</strong> &mdash; 14k estrellas, 94 versiones, comunidad fuerte",
+
+        "s13.title": "Desventajas",
+        "s13.item1": "<strong class=\"cons\">Gran inversi\u00f3n inicial</strong> &mdash; la proporci\u00f3n 80/20 de planificaci\u00f3n ralentiza la velocidad inicial",
+        "s13.item2": "<strong class=\"cons\">Muchas dependencias</strong> &mdash; requiere agent-browser, gh, jq, vhs, silicon, ffmpeg",
+        "s13.item3": "<strong class=\"cons\">Multi-plataforma experimental</strong> &mdash; editores fuera de Claude pueden fallar",
+        "s13.item4": "<strong class=\"cons\">Curva de aprendizaje</strong> &mdash; 6 comandos de flujo con secuencia espec\u00edfica",
+        "s13.item5": "<strong class=\"cons\">Limitaciones de MCP</strong> &mdash; algunas plataformas solo soportan servidores stdio",
+        "s13.item6": "<strong class=\"cons\">Flujo dogm\u00e1tico</strong> &mdash; puede no adaptarse a todos los equipos o estilos",
+
+        "s14.title": "Cu\u00e1ndo Usarlo",
+        "s14.item1": "Equipos que hacen <strong>desarrollo asistido por IA</strong>",
+        "s14.item2": "Proyectos donde la <strong>calidad y documentaci\u00f3n</strong> importan",
+        "s14.item3": "C\u00f3digos base que ser\u00e1n <strong>mantenidos a largo plazo</strong>",
+        "s14.item4": "Cuando quieres que cada sprint sea <strong>m\u00e1s r\u00e1pido que el anterior</strong>",
+
+        "s15.title": "Cu\u00e1ndo NO Usarlo",
+        "s15.item1": "Prototipos r\u00e1pidos o scripts desechables",
+        "s15.item2": "Proyectos personales sin mantenimiento futuro",
+        "s15.item3": "Equipos que no usan herramientas de IA para codificar",
+        "s15.item4": "Cuando necesitas enviar r\u00e1pido con m\u00ednimo proceso",
+
+        "s16.title": "Primeros Pasos",
+        "s16.item1": "<strong>Instalar:</strong> <code>/plugin marketplace add EveryInc/compound-engineering-plugin</code>",
+        "s16.item2": "<strong>Configurar:</strong> <code>/ce-setup</code>",
+        "s16.item3": "<strong>Comenzar:</strong> <code>/ce:brainstorm</code>",
+        "s16.also": "Tambi\u00e9n disponible como:"
+      },
+
+      pt: {
+        "title": "Plugin de Engenharia Composta",
+        "subtitle": "Tornando cada unidade de trabalho mais f\u00e1cil que a anterior",
+        "by": "Por",
+        "presented_by": "Apresentado por",
+
+        "s2.title": "O Que \u00c9?",
+        "s2.item1": "Um <span class=\"highlight\">plugin para editores de c\u00f3digo com IA</span> (Claude Code, Cursor e mais)",
+        "s2.item2": "Adiciona <strong>agentes</strong>, <strong>habilidades</strong> e <strong>fluxos de trabalho</strong> especializados",
+        "s2.item3": "Estrutura seu desenvolvimento assistido por IA em um ciclo repet\u00edvel",
+        "s2.stats": "14,000+ estrelas &middot; 94 vers\u00f5es &middot; Licen\u00e7a MIT &middot; C\u00f3digo aberto",
+
+        "s3.title": "A Filosofia Central",
+        "s3.quote": "&ldquo;Cada unidade de trabalho de engenharia deve tornar as pr\u00f3ximas mais f\u00e1ceis &mdash; n\u00e3o mais dif\u00edceis.&rdquo;",
+        "s3.item1": "Inverte a trajet\u00f3ria tradicional da <strong>d\u00edvida t\u00e9cnica</strong>",
+        "s3.item2": "<span class=\"highlight\">80% Planejamento e Revis\u00e3o</span> / 20% Execu\u00e7\u00e3o",
+        "s3.item3": "O conhecimento de cada ciclo alimenta o pr\u00f3ximo",
+
+        "s4.title": "O Ciclo de Trabalho",
+        "wf.ideate": "Idear",
+        "wf.brainstorm": "Brainstorm",
+        "wf.plan": "Planejar",
+        "wf.work": "Trabalhar",
+        "wf.review": "Revisar",
+        "wf.compound": "Compor",
+        "s4.loop": "&larr;&larr;&larr; repetir &mdash; cada ciclo acumula conhecimento &rarr;&rarr;&rarr;",
+        "s4.note": "Idear \u00e9 opcional &middot; Todos os outros passos recomendados pela documenta\u00e7\u00e3o",
+
+        "s5.title": "Comandos Principais",
+        "s5.cmd1": "Identificar melhorias de alto impacto",
+        "s5.cmd2": "Explorar requisitos interativamente",
+        "s5.cmd3": "Converter ideias em planos t\u00e9cnicos",
+        "s5.cmd4": "Executar com worktrees e rastreamento de tarefas",
+        "s5.cmd5": "Revis\u00e3o de c\u00f3digo multi-agente",
+        "s5.cmd6": "Documentar aprendizados para reutiliza\u00e7\u00e3o",
+
+        "s6.title": "Brainstorm e Planejamento",
+        "s6.item1": "<strong>Brainstorm</strong> refina ideias atrav\u00e9s de perguntas e respostas interativas",
+        "s6.item2": "Abrevia quando a ideia j\u00e1 est\u00e1 clara",
+        "s6.item3": "<strong>Plan</strong> converte requisitos em especifica\u00e7\u00f5es t\u00e9cnicas acion\u00e1veis",
+        "s6.item4": "Agentes de pesquisa coletam contexto do c\u00f3digo e melhores pr\u00e1ticas automaticamente",
+        "s6.item5": "Os planos s\u00e3o salvos como arquivos markdown em <code>docs/plans/</code>",
+
+        "s7.title": "Trabalho e Revis\u00e3o",
+        "s7.item1": "<strong>Work</strong> usa Git worktrees para execu\u00e7\u00e3o isolada e paralela",
+        "s7.item2": "Tarefas rastreadas com sistema de tarefas integrado",
+        "s7.item3": "Commits incrementais conforme unidades l\u00f3gicas s\u00e3o conclu\u00eddas",
+        "s7.item4": "<strong>Review</strong> implanta m\u00faltiplos agentes revisores especializados:",
+        "s7.item5": "Seguran\u00e7a &middot; Performance &middot; Arquitetura &middot; Rails (DHH) &middot; Simplicidade",
+
+        "s8.title": "Compor",
+        "s8.item1": "Documenta solu\u00e7\u00f5es, problemas encontrados e aprendizados ap\u00f3s cada ciclo",
+        "s8.item2": "Armazenados em <code>docs/solutions/</code> para refer\u00eancia futura",
+        "s8.item3": "Agentes de IA <strong>referenciam automaticamente</strong> aprendizados anteriores em trabalhos futuros",
+        "s8.item4": "Cada ciclo torna o pr\u00f3ximo mais r\u00e1pido e melhor informado",
+        "s8.note": "Este \u00e9 o passo que torna todo o sistema &ldquo;composto&rdquo;",
+
+        "s9.title": "Na Pr\u00e1tica",
+        "s9.subtitle": "Voc\u00ea n\u00e3o precisa de cada passo em todas as vezes",
+        "s9.doc_label": "<strong>Fluxo da documenta\u00e7\u00e3o:</strong>",
+        "s9.doc_note": "Ciclo completo como recomendado pela documenta\u00e7\u00e3o",
+        "s9.my_label": "<strong>Meu fluxo:</strong>",
+        "s9.my_note": "Base: Planejar &rarr; Trabalhar &rarr; Revisar &middot; Compor quando necess\u00e1rio",
+
+        "s10.title": "Suporte Multi-Plataforma",
+        "s10.legend_green": "Verde = suporte principal",
+        "s10.legend_gray": "Cinza = experimental",
+        "s10.note": "O CLI converte o formato do plugin entre plataformas automaticamente",
+
+        "s11.title": "Stack Tecnol\u00f3gico",
+        "s11.item1": "<strong>TypeScript</strong> (76.4%) &mdash; c\u00f3digo principal do plugin",
+        "s11.item2": "<strong>Python</strong> (10.9%) &middot; <strong>JavaScript</strong> (6.4%) &middot; <strong>Shell</strong> (3.9%) &middot; <strong>Ruby</strong> (2.4%)",
+        "s11.item3": "<strong>Bun</strong> runtime e gerenciador de pacotes",
+        "s11.item4": "<strong>MCP Server</strong> integra\u00e7\u00e3o (Model Context Protocol)",
+        "s11.item5": "<strong>Licen\u00e7a MIT</strong> &mdash; totalmente c\u00f3digo aberto",
+        "s11.stats": "619 commits &middot; 36 issues abertos &middot; 23 PRs &middot; v2.65.0",
+
+        "s12.title": "Vantagens",
+        "s12.item1": "<strong class=\"pros\">O conhecimento se acumula</strong> &mdash; aprendizados documentados aceleram trabalhos futuros",
+        "s12.item2": "<strong class=\"pros\">Preserva\u00e7\u00e3o de qualidade</strong> &mdash; revis\u00e3o rigorosa previne acumula\u00e7\u00e3o de d\u00edvida t\u00e9cnica",
+        "s12.item3": "<strong class=\"pros\">Revis\u00e3o multi-agente</strong> &mdash; detecta problemas de seguran\u00e7a, performance e arquitetura",
+        "s12.item4": "<strong class=\"pros\">Agn\u00f3stico de plataforma</strong> &mdash; funciona em muitos editores de IA, n\u00e3o s\u00f3 Claude Code",
+        "s12.item5": "<strong class=\"pros\">C\u00f3digo aberto (MIT)</strong> &mdash; livre para usar, modificar e contribuir",
+        "s12.item6": "<strong class=\"pros\">Desenvolvimento ativo</strong> &mdash; 14k estrelas, 94 vers\u00f5es, comunidade forte",
+
+        "s13.title": "Desvantagens",
+        "s13.item1": "<strong class=\"cons\">Grande investimento inicial</strong> &mdash; propor\u00e7\u00e3o 80/20 de planejamento reduz velocidade inicial",
+        "s13.item2": "<strong class=\"cons\">Muitas depend\u00eancias</strong> &mdash; requer agent-browser, gh, jq, vhs, silicon, ffmpeg",
+        "s13.item3": "<strong class=\"cons\">Multi-plataforma experimental</strong> &mdash; editores fora do Claude podem falhar",
+        "s13.item4": "<strong class=\"cons\">Curva de aprendizado</strong> &mdash; 6 comandos de fluxo com sequ\u00eancia espec\u00edfica",
+        "s13.item5": "<strong class=\"cons\">Limita\u00e7\u00f5es do MCP</strong> &mdash; algumas plataformas s\u00f3 suportam servidores stdio",
+        "s13.item6": "<strong class=\"cons\">Fluxo opinionado</strong> &mdash; pode n\u00e3o se adaptar a todos os times ou estilos",
+
+        "s14.title": "Quando Usar",
+        "s14.item1": "Times que fazem <strong>desenvolvimento assistido por IA</strong>",
+        "s14.item2": "Projetos onde <strong>qualidade e documenta\u00e7\u00e3o</strong> importam",
+        "s14.item3": "C\u00f3digos base que ser\u00e3o <strong>mantidos a longo prazo</strong>",
+        "s14.item4": "Quando voc\u00ea quer que cada sprint seja <strong>mais r\u00e1pido que o anterior</strong>",
+
+        "s15.title": "Quando N\u00c3O Usar",
+        "s15.item1": "Prot\u00f3tipos r\u00e1pidos ou scripts descart\u00e1veis",
+        "s15.item2": "Projetos pessoais sem manuten\u00e7\u00e3o futura",
+        "s15.item3": "Times que n\u00e3o usam ferramentas de IA para codificar",
+        "s15.item4": "Quando voc\u00ea precisa entregar r\u00e1pido com processo m\u00ednimo",
+
+        "s16.title": "Primeiros Passos",
+        "s16.item1": "<strong>Instalar:</strong> <code>/plugin marketplace add EveryInc/compound-engineering-plugin</code>",
+        "s16.item2": "<strong>Configurar:</strong> <code>/ce-setup</code>",
+        "s16.item3": "<strong>Come\u00e7ar:</strong> <code>/ce:brainstorm</code>",
+        "s16.also": "Tamb\u00e9m dispon\u00edvel como:"
+      }
+    };
+
+    // ── Theme & Language Functions ──
+    function getPrefs() {
+      try {
+        return JSON.parse(localStorage.getItem('pres-prefs') || '{}');
+      } catch(e) {
+        return {};
+      }
+    }
+
+    function savePrefs(prefs) {
+      try {
+        localStorage.setItem('pres-prefs', JSON.stringify(prefs));
+      } catch(e) { /* localStorage unavailable */ }
+    }
+
+    function setTheme(theme) {
+      if (theme !== 'dark' && theme !== 'light') theme = 'dark';
+      document.documentElement.setAttribute('data-theme', theme);
+      document.getElementById('theme-icon').textContent = theme === 'dark' ? '\uD83C\uDF19' : '\u2600\uFE0F';
+      var prefs = getPrefs();
+      prefs.theme = theme;
+      savePrefs(prefs);
+    }
+
+    function toggleTheme() {
+      var current = document.documentElement.getAttribute('data-theme');
+      setTheme(current === 'dark' ? 'light' : 'dark');
+    }
+
+    function setLang(lang) {
+      if (!translations[lang]) lang = 'en';
+      document.querySelectorAll('[data-i18n]').forEach(function(el) {
+        var key = el.getAttribute('data-i18n');
+        if (translations[lang][key]) {
+          el.innerHTML = translations[lang][key];
+        }
+      });
+      document.getElementById('lang-select').value = lang;
+      document.documentElement.lang = lang;
+      var prefs = getPrefs();
+      prefs.lang = lang;
+      savePrefs(prefs);
+    }
+
+    // ── Initialize ──
+    document.addEventListener('DOMContentLoaded', function() {
+      var prefs = getPrefs();
+
+      // Theme: saved > prefers-color-scheme > dark
+      var theme = prefs.theme;
+      if (theme !== 'dark' && theme !== 'light') {
+        theme = (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) ? 'light' : 'dark';
+      }
+      setTheme(theme);
+
+      // Language: saved > en
+      var lang = prefs.lang;
+      if (!translations[lang]) lang = 'en';
+      setLang(lang);
+
+      // Wire up controls
+      document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
+      document.getElementById('lang-select').addEventListener('change', function() {
+        setLang(this.value);
+      });
+
+      // Initialize Reveal.js
+      var watermark = document.getElementById('kelsus-watermark');
+      function updateWatermark() {
+        var slide = Reveal.getCurrentSlide();
+        watermark.style.display = slide && slide.hasAttribute('data-hide-watermark') ? 'none' : 'flex';
+      }
+
+      Reveal.initialize({
+        hash: true,
+        transition: 'slide',
+        slideNumber: true,
+        controls: true,
+        progress: true
+      }).then(function() {
+        Reveal.on('slidechanged', updateWatermark);
+        updateWatermark();
+      });
+    });
+  </script>
+</body>
+</html>
