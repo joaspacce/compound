@@ -118,6 +118,8 @@
       border-style: dashed;
       background: var(--workflow-box-optional-bg);
     }
+    .workflow-box.clickable { cursor: pointer; transition: border-color 0.2s, box-shadow 0.2s; }
+    .workflow-box.clickable:hover { border-color: var(--accent); box-shadow: 0 0 8px var(--accent); }
     .arrow { color: var(--accent); font-size: 1.2em; font-weight: bold; }
     .loop-arrow { display: block; text-align: center; color: var(--muted); font-size: 0.6em; margin-top: 10px; }
 
@@ -382,17 +384,17 @@
       <section>
         <h2 data-i18n="s4.title">The Workflow Cycle</h2>
         <div class="workflow">
-          <span class="workflow-box optional" data-i18n="wf.ideate">Ideate</span>
+          <span class="workflow-box optional clickable" data-i18n="wf.ideate" onclick="Reveal.slide(4)">Ideate</span>
           <span class="arrow">&rarr;</span>
-          <span class="workflow-box" data-i18n="wf.brainstorm">Brainstorm</span>
+          <span class="workflow-box clickable" data-i18n="wf.brainstorm" onclick="Reveal.slide(5)">Brainstorm</span>
           <span class="arrow">&rarr;</span>
-          <span class="workflow-box" data-i18n="wf.plan">Plan</span>
+          <span class="workflow-box clickable" data-i18n="wf.plan" onclick="Reveal.slide(5)">Plan</span>
           <span class="arrow">&rarr;</span>
-          <span class="workflow-box" data-i18n="wf.work">Work</span>
+          <span class="workflow-box clickable" data-i18n="wf.work" onclick="Reveal.slide(6)">Work</span>
           <span class="arrow">&rarr;</span>
-          <span class="workflow-box" data-i18n="wf.review">Review</span>
+          <span class="workflow-box clickable" data-i18n="wf.review" onclick="Reveal.slide(6)">Review</span>
           <span class="arrow">&rarr;</span>
-          <span class="workflow-box" data-i18n="wf.compound">Compound</span>
+          <span class="workflow-box clickable" data-i18n="wf.compound" onclick="Reveal.slide(7)">Compound</span>
         </div>
         <p class="loop-arrow" data-i18n="s4.loop">&larr;&larr;&larr; repeat &mdash; each cycle compounds knowledge &rarr;&rarr;&rarr;</p>
         <p class="small" style="margin-top: 20px;" data-i18n="s4.note">Ideate is optional &middot; All other steps recommended by docs</p>
@@ -473,29 +475,29 @@
 
         <p style="font-size: 0.6em; color: var(--accent); margin-bottom: 8px; text-align: left;" data-i18n="s9.doc_label"><strong>Documentation flow:</strong></p>
         <div class="workflow">
-          <span class="workflow-box optional" data-i18n="wf.ideate">Ideate</span>
+          <span class="workflow-box optional clickable" data-i18n="wf.ideate" onclick="Reveal.slide(4)">Ideate</span>
           <span class="arrow">&rarr;</span>
-          <span class="workflow-box" data-i18n="wf.brainstorm">Brainstorm</span>
+          <span class="workflow-box clickable" data-i18n="wf.brainstorm" onclick="Reveal.slide(5)">Brainstorm</span>
           <span class="arrow">&rarr;</span>
-          <span class="workflow-box" data-i18n="wf.plan">Plan</span>
+          <span class="workflow-box clickable" data-i18n="wf.plan" onclick="Reveal.slide(5)">Plan</span>
           <span class="arrow">&rarr;</span>
-          <span class="workflow-box" data-i18n="wf.work">Work</span>
+          <span class="workflow-box clickable" data-i18n="wf.work" onclick="Reveal.slide(6)">Work</span>
           <span class="arrow">&rarr;</span>
-          <span class="workflow-box" data-i18n="wf.review">Review</span>
+          <span class="workflow-box clickable" data-i18n="wf.review" onclick="Reveal.slide(6)">Review</span>
           <span class="arrow">&rarr;</span>
-          <span class="workflow-box" data-i18n="wf.compound">Compound</span>
+          <span class="workflow-box clickable" data-i18n="wf.compound" onclick="Reveal.slide(7)">Compound</span>
         </div>
         <p class="small" style="margin-bottom: 25px;" data-i18n="s9.doc_note">Full cycle as recommended by the docs</p>
 
         <p style="font-size: 0.6em; color: var(--green); margin-bottom: 8px; text-align: left;" data-i18n="s9.my_label"><strong>My flow:</strong></p>
         <div class="workflow">
-          <span class="workflow-box" data-i18n="wf.plan">Plan</span>
+          <span class="workflow-box clickable" data-i18n="wf.plan" onclick="Reveal.slide(5)">Plan</span>
           <span class="arrow">&rarr;</span>
-          <span class="workflow-box" data-i18n="wf.work">Work</span>
+          <span class="workflow-box clickable" data-i18n="wf.work" onclick="Reveal.slide(6)">Work</span>
           <span class="arrow">&rarr;</span>
-          <span class="workflow-box" data-i18n="wf.review">Review</span>
+          <span class="workflow-box clickable" data-i18n="wf.review" onclick="Reveal.slide(6)">Review</span>
           <span class="arrow">&rarr;</span>
-          <span class="workflow-box optional" data-i18n="wf.compound">Compound</span>
+          <span class="workflow-box optional clickable" data-i18n="wf.compound" onclick="Reveal.slide(7)">Compound</span>
         </div>
         <p class="small" data-i18n="s9.my_note">Core: Plan &rarr; Work &rarr; Review &middot; Compound when needed</p>
       </section>
