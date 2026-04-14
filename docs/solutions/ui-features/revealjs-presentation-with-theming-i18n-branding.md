@@ -164,8 +164,12 @@ Full review: `docs/reviews/2026-04-14-code-review.md`
 
 - Presentation: `presentation/index.html`
 - Vendor assets: `presentation/vendor/`
-- Plans: `docs/plans/2026-04-14-feat-*.md` (5 plan documents)
-- Review: `docs/reviews/2026-04-14-code-review.md`
+- Original plan (Apr 11): `docs/plans/2026-04-11-feat-compound-engineering-plugin-presentation-plan.md` — defined the 16-slide structure, Reveal.js choice, content outline, and slide-by-slide breakdown
+- Dark/light + i18n plan: `docs/plans/2026-04-14-feat-presentation-dark-light-mode-multilingual-plan.md`
+- Kelsus branding plan: `docs/plans/2026-04-14-feat-kelsus-camp-branding-title-slide-plan.md`
+- Font controls + closing slides plan: `docs/plans/2026-04-14-feat-font-size-controls-closing-slides-plan.md`
+- Clickable workflow boxes plan: `docs/plans/2026-04-14-feat-clickable-workflow-cycle-boxes-plan.md`
+- Code review: `docs/reviews/2026-04-14-code-review.md`
 - Reveal.js docs: https://revealjs.com/
 - Kelsus: https://kelsus.com
 - Plugin repo: https://github.com/EveryInc/compound-engineering-plugin
