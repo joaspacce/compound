@@ -123,6 +123,7 @@
     .workflow-box.clickable { cursor: pointer; transition: border-color 0.2s, box-shadow 0.2s; }
     .workflow-box.clickable:hover { border-color: var(--accent); box-shadow: 0 0 8px var(--accent); }
     .arrow { color: var(--accent); font-size: 1.2em; font-weight: bold; }
+    .arrow.optional { color: var(--muted); opacity: 0.75; }
     .loop-arrow { display: block; text-align: center; color: var(--muted); font-size: 0.6em; margin-top: 10px; }
 
     /* ── Command table ── */
@@ -130,6 +131,20 @@
     .cmd-table td { padding: 8px 12px; border-bottom: 1px solid var(--border-color); vertical-align: top; color: var(--text-primary); }
     .cmd-table td:first-child { white-space: nowrap; color: var(--accent); font-family: monospace; font-weight: bold; }
     .cmd-table .aliases { color: var(--muted); font-family: monospace; font-size: 0.85em; display: block; margin-top: 2px; }
+    .cmd-table .optional-chip {
+      display: inline-block;
+      margin-left: 8px;
+      padding: 2px 8px;
+      border: 1px dashed var(--muted);
+      border-radius: 999px;
+      font-size: 0.85em;
+      color: var(--muted);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      font-weight: normal;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      vertical-align: middle;
+    }
 
     /* ── Pros/Cons grid ── */
     .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; text-align: left; }
@@ -384,7 +399,7 @@
         </blockquote>
         <ul>
           <li data-i18n="s3.item1">Inverts the traditional <strong>technical debt</strong> trajectory</li>
-          <li data-i18n="s3.item2"><span class="highlight">80% Planning &amp; Review</span> / 20% Execution</li>
+          <li data-i18n="s3.item2"><span class="highlight">80% Plan &amp; Review</span> / 20% Work &amp; Compound</li>
           <li data-i18n="s3.item3">Knowledge from each cycle feeds into the next</li>
         </ul>
       </section>
@@ -393,8 +408,8 @@
       <section>
         <h2 data-i18n="s4.title">The Workflow Cycle</h2>
         <div class="workflow">
-          <span class="workflow-box clickable" data-i18n="wf.brainstorm" onclick="Reveal.slide(5)">Brainstorm</span>
-          <span class="arrow">&rarr;</span>
+          <span class="workflow-box optional clickable" data-i18n="wf.brainstorm" onclick="Reveal.slide(5)">Brainstorm</span>
+          <span class="arrow optional">&#x21E2;</span>
           <span class="workflow-box clickable" data-i18n="wf.plan" onclick="Reveal.slide(5)">Plan</span>
           <span class="arrow">&rarr;</span>
           <span class="workflow-box clickable" data-i18n="wf.work" onclick="Reveal.slide(6)">Work</span>
@@ -404,6 +419,7 @@
           <span class="workflow-box clickable" data-i18n="wf.compound" onclick="Reveal.slide(7)">Compound</span>
         </div>
         <p class="loop-arrow" data-i18n="s4.loop">&larr;&larr;&larr; repeat &mdash; each cycle compounds knowledge &rarr;&rarr;&rarr;</p>
+        <p class="small" style="margin-top: 20px;" data-i18n="s4.note">Brainstorm is optional pre-planning &middot; Core cycle: Plan &rarr; Work &rarr; Review &rarr; Compound</p>
       </section>
 
       <!-- Slide 5: Key Commands -->
@@ -411,7 +427,7 @@
         <h2 data-i18n="s5.title">Key Commands</h2>
         <table class="cmd-table">
           <tr>
-            <td>/ce:brainstorm<span class="aliases">/workflows:brainstorm &middot; /compound-engineering:workflows:brainstorm</span></td>
+            <td>/ce:brainstorm<span class="aliases">/workflows:brainstorm &middot; /compound-engineering:workflows:brainstorm</span><span class="optional-chip" data-i18n="s5.brainstorm_chip">optional</span></td>
             <td data-i18n="s5.cmd2">Explore requirements interactively</td>
           </tr>
           <tr>
@@ -477,8 +493,8 @@
 
         <p style="font-size: 0.6em; color: var(--accent); margin-bottom: 8px; text-align: left;" data-i18n="s9.doc_label"><strong>Documentation flow:</strong></p>
         <div class="workflow">
-          <span class="workflow-box clickable" data-i18n="wf.brainstorm" onclick="Reveal.slide(5)">Brainstorm</span>
-          <span class="arrow">&rarr;</span>
+          <span class="workflow-box optional clickable" data-i18n="wf.brainstorm" onclick="Reveal.slide(5)">Brainstorm</span>
+          <span class="arrow optional">&#x21E2;</span>
           <span class="workflow-box clickable" data-i18n="wf.plan" onclick="Reveal.slide(5)">Plan</span>
           <span class="arrow">&rarr;</span>
           <span class="workflow-box clickable" data-i18n="wf.work" onclick="Reveal.slide(6)">Work</span>
@@ -645,7 +661,7 @@
         "s3.title": "The Core Philosophy",
         "s3.quote": "&ldquo;Each unit of engineering work should make subsequent units easier &mdash; not harder.&rdquo;",
         "s3.item1": "Inverts the traditional <strong>technical debt</strong> trajectory",
-        "s3.item2": "<span class=\"highlight\">80% Planning &amp; Review</span> / 20% Execution",
+        "s3.item2": "<span class=\"highlight\">80% Plan &amp; Review</span> / 20% Work &amp; Compound",
         "s3.item3": "Knowledge from each cycle feeds into the next",
 
         "s4.title": "The Workflow Cycle",
@@ -655,9 +671,11 @@
         "wf.review": "Review",
         "wf.compound": "Compound",
         "s4.loop": "&larr;&larr;&larr; repeat &mdash; each cycle compounds knowledge &rarr;&rarr;&rarr;",
+        "s4.note": "Brainstorm is optional pre-planning &middot; Core cycle: Plan &rarr; Work &rarr; Review &rarr; Compound",
 
         "s5.title": "Key Commands",
         "s5.cmd2": "Explore requirements interactively",
+        "s5.brainstorm_chip": "optional",
         "s5.cmd3": "Convert ideas into technical plans",
         "s5.cmd4": "Execute with worktrees &amp; task tracking",
         "s5.cmd5": "Multi-agent code review",
@@ -757,7 +775,7 @@
         "s3.title": "La Filosof\u00eda Central",
         "s3.quote": "&ldquo;Cada unidad de trabajo de ingenier\u00eda debe hacer que las siguientes sean m\u00e1s f\u00e1ciles &mdash; no m\u00e1s dif\u00edciles.&rdquo;",
         "s3.item1": "Invierte la trayectoria tradicional de la <strong>deuda t\u00e9cnica</strong>",
-        "s3.item2": "<span class=\"highlight\">80% Planificaci\u00f3n y Revisi\u00f3n</span> / 20% Ejecuci\u00f3n",
+        "s3.item2": "<span class=\"highlight\">80% Planificar y Revisar</span> / 20% Trabajar y Componer",
         "s3.item3": "El conocimiento de cada ciclo alimenta al siguiente",
 
         "s4.title": "El Ciclo de Trabajo",
@@ -767,9 +785,11 @@
         "wf.review": "Revisar",
         "wf.compound": "Componer",
         "s4.loop": "&larr;&larr;&larr; repetir &mdash; cada ciclo acumula conocimiento &rarr;&rarr;&rarr;",
+        "s4.note": "Brainstorm es planificaci\u00f3n previa opcional &middot; Ciclo principal: Plan &rarr; Work &rarr; Review &rarr; Compound",
 
         "s5.title": "Comandos Clave",
         "s5.cmd2": "Explorar requisitos interactivamente",
+        "s5.brainstorm_chip": "opcional",
         "s5.cmd3": "Convertir ideas en planes t\u00e9cnicos",
         "s5.cmd4": "Ejecutar con worktrees y seguimiento de tareas",
         "s5.cmd5": "Revisi\u00f3n de c\u00f3digo multi-agente",
@@ -869,7 +889,7 @@
         "s3.title": "A Filosofia Central",
         "s3.quote": "&ldquo;Cada unidade de trabalho de engenharia deve tornar as pr\u00f3ximas mais f\u00e1ceis &mdash; n\u00e3o mais dif\u00edceis.&rdquo;",
         "s3.item1": "Inverte a trajet\u00f3ria tradicional da <strong>d\u00edvida t\u00e9cnica</strong>",
-        "s3.item2": "<span class=\"highlight\">80% Planejamento e Revis\u00e3o</span> / 20% Execu\u00e7\u00e3o",
+        "s3.item2": "<span class=\"highlight\">80% Planejar e Revisar</span> / 20% Trabalhar e Compor",
         "s3.item3": "O conhecimento de cada ciclo alimenta o pr\u00f3ximo",
 
         "s4.title": "O Ciclo de Trabalho",
@@ -879,9 +899,11 @@
         "wf.review": "Revisar",
         "wf.compound": "Compor",
         "s4.loop": "&larr;&larr;&larr; repetir &mdash; cada ciclo acumula conhecimento &rarr;&rarr;&rarr;",
+        "s4.note": "Brainstorm \u00e9 planejamento pr\u00e9vio opcional &middot; Ciclo principal: Plan &rarr; Work &rarr; Review &rarr; Compound",
 
         "s5.title": "Comandos Principais",
         "s5.cmd2": "Explorar requisitos interativamente",
+        "s5.brainstorm_chip": "opcional",
         "s5.cmd3": "Converter ideias em planos t\u00e9cnicos",
         "s5.cmd4": "Executar com worktrees e rastreamento de tarefas",
         "s5.cmd5": "Revis\u00e3o de c\u00f3digo multi-agente",
