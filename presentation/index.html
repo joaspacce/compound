@@ -71,6 +71,7 @@
     }
     .reveal .slides { background: transparent; }
     .reveal .slides > section { overflow-y: auto !important; max-height: 700px !important; scrollbar-width: thin; scrollbar-color: var(--muted) transparent; }
+    .reveal .slides > section > section { overflow-y: auto !important; max-height: 700px !important; scrollbar-width: thin; scrollbar-color: var(--muted) transparent; }
     .reveal .slides > section[data-hide-watermark] { overflow: hidden !important; }
     .reveal .slides section::-webkit-scrollbar { width: 6px; }
     .reveal .slides section::-webkit-scrollbar-track { background: transparent; }
@@ -145,6 +146,39 @@
       letter-spacing: 0.04em;
       vertical-align: middle;
     }
+
+    /* ── Deep-dive term links + navigator ── */
+    .term-link {
+      color: var(--accent);
+      text-decoration: underline dotted;
+      text-underline-offset: 3px;
+      cursor: pointer;
+      font-weight: inherit;
+    }
+    .term-link:hover, .term-link:focus { text-decoration-style: solid; outline: none; }
+
+    .deepdive-nav {
+      display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;
+      margin-top: 30px; padding-top: 16px;
+      border-top: 1px dashed var(--muted);
+      font-size: 0.5em;
+    }
+    .deepdive-nav button, .deepdive-nav a {
+      background: transparent;
+      border: 1px solid var(--muted);
+      color: var(--text-primary);
+      padding: 6px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: border-color 0.2s, color 0.2s;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    }
+    .deepdive-nav button:hover, .deepdive-nav a:hover { border-color: var(--accent); color: var(--accent); }
+    .deepdive-nav .nav-back { border-color: var(--accent); color: var(--accent); }
+
+    .deepdive-more-hint { display: block; text-align: center; font-size: 0.5em; color: var(--muted); margin-top: 10px; }
+    .reveal .slides > section > section:last-child .deepdive-more-hint { display: none; }
 
     /* ── Pros/Cons grid ── */
     .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; text-align: left; }
@@ -366,8 +400,12 @@
       <!-- Slide 1: Title (hide watermark on this slide via JS) -->
       <section data-hide-watermark style="font-size: 0.8em;">
         <h1 style="font-size: 2em; display: flex; align-items: center; justify-content: center; gap: 14px;">
-          <svg viewBox="0 0 64 16" style="height: 0.75em;"><use href="#kelsus-logo"/></svg>
-          <span style="color: var(--accent); font-size: 1.2em;">Camp 2026</span>
+          <a href="https://kelsus.com" target="_blank" rel="noopener noreferrer"
+             style="display: inline-flex; align-items: center; gap: 14px; color: inherit; text-decoration: none;"
+             aria-label="Kelsus Camp 2026 &mdash; visit kelsus.com">
+            <svg viewBox="0 0 64 16" style="height: 0.75em;"><use href="#kelsus-logo"/></svg>
+            <span style="color: var(--accent); font-size: 1.2em;">Camp 2026</span>
+          </a>
         </h1>
         <h1 data-i18n="title" style="font-size: 1.4em; margin-top: 0.3em;">Compound Engineering Plugin</h1>
         <p style="font-size: 0.45em; color: var(--muted); margin-top: 0.1em;">
@@ -461,16 +499,51 @@
         </ul>
       </section>
 
-      <!-- Slide 7: How It Works — Work & Review -->
+      <!-- Slide 7: How It Works — Work & Review (with 2 vertical deep-dives) -->
       <section>
-        <h2 data-i18n="s7.title">Work &amp; Review</h2>
-        <ul>
-          <li data-i18n="s7.item1"><strong>Work</strong> uses Git worktrees for isolated, parallel execution</li>
-          <li data-i18n="s7.item2">Tasks tracked with built-in todo system</li>
-          <li data-i18n="s7.item3">Incremental commits as logical units complete</li>
-          <li data-i18n="s7.item4"><strong>Review</strong> deploys multiple specialized reviewer agents:</li>
-          <li style="padding-left: 1.5em; list-style: none;" data-i18n="s7.item5">Security &middot; Performance &middot; Architecture &middot; Rails (DHH) &middot; Simplicity</li>
-        </ul>
+        <section>
+          <h2 data-i18n="s7.title">Work &amp; Review</h2>
+          <ul>
+            <li data-i18n="s7.item1"><strong>Work</strong> uses <a class="term-link" href="#/6/1">Git worktrees</a> for isolated, parallel execution</li>
+            <li data-i18n="s7.item2">Tasks tracked with built-in todo system</li>
+            <li data-i18n="s7.item3">Incremental commits as logical units complete</li>
+            <li data-i18n="s7.item4"><strong>Review</strong> deploys multiple specialized reviewer agents:</li>
+            <li style="padding-left: 1.5em; list-style: none;" data-i18n="s7.item5">Security &middot; Performance &middot; Architecture &middot; <a class="term-link" href="#/6/2">Rails (DHH)</a> &middot; Simplicity</li>
+          </ul>
+          <p class="deepdive-more-hint" data-i18n="dd.hint_s7">&darr; Press down for deep-dives: Git worktrees &middot; Rails &amp; DHH</p>
+        </section>
+
+        <!-- v1: Git worktree -->
+        <section data-deepdive-parent="7">
+          <h2 data-i18n="dd.worktree.title">Deep-dive: Git worktrees</h2>
+          <ul>
+            <li data-i18n="dd.worktree.item1"><code>git worktree add &lt;path&gt; &lt;branch&gt;</code> creates a parallel working directory</li>
+            <li data-i18n="dd.worktree.item2">Same <code>.git</code>, multiple checkouts &mdash; no duplicate storage</li>
+            <li data-i18n="dd.worktree.item3"><strong>/workflows:work</strong> can run the agent in its own worktree so your main checkout stays untouched</li>
+            <li data-i18n="dd.worktree.item4">Enables parallel agent swarms: each teammate gets its own branch and working directory</li>
+          </ul>
+          <div class="deepdive-nav">
+            <a class="nav-back" href="#/6/0"><span data-i18n="dd.nav.back_s7">&uarr; Back to Work &amp; Review</span></a>
+            <button type="button" onclick="Reveal.left()" data-i18n="dd.nav.prev">&larr; Previous</button>
+            <button type="button" onclick="Reveal.right()" data-i18n="dd.nav.next">Next &rarr;</button>
+          </div>
+        </section>
+
+        <!-- v2: Rails / DHH -->
+        <section data-deepdive-parent="7">
+          <h2 data-i18n="dd.dhh.title">Deep-dive: Rails &amp; DHH</h2>
+          <ul>
+            <li data-i18n="dd.dhh.item1"><strong>Rails</strong> &mdash; Ruby on Rails, a server-rendered web framework (2004&rarr;)</li>
+            <li data-i18n="dd.dhh.item2"><strong>DHH</strong> &mdash; David Heinemeier Hansson, Rails creator &amp; 37signals cofounder</li>
+            <li data-i18n="dd.dhh.item3">Opinionated: <em>convention over configuration</em>, REST purity, Hotwire, "majestic monolith"</li>
+            <li data-i18n="dd.dhh.item4">The <strong>dhh-rails-reviewer</strong> agent reviews Ruby/Rails code in his style &mdash; flags JS-framework contamination, anti-patterns, convention drift</li>
+          </ul>
+          <div class="deepdive-nav">
+            <a class="nav-back" href="#/6/0"><span data-i18n="dd.nav.back_s7">&uarr; Back to Work &amp; Review</span></a>
+            <button type="button" onclick="Reveal.left()" data-i18n="dd.nav.prev">&larr; Previous</button>
+            <button type="button" onclick="Reveal.right()" data-i18n="dd.nav.next">Next &rarr;</button>
+          </div>
+        </section>
       </section>
 
       <!-- Slide 8: How It Works — Compound -->
@@ -542,18 +615,55 @@
         </p>
       </section>
 
-      <!-- Slide 11: Tech Stack -->
+      <!-- Slide 11: Tech Stack (with 2 vertical deep-dives) -->
       <section>
-        <h2 data-i18n="s11.title">Tech Stack</h2>
-        <ul>
-          <li data-i18n="s11.item1"><strong>TypeScript</strong> (76.4%) &mdash; core plugin code</li>
-          <li data-i18n="s11.item2"><strong>Python</strong> (10.9%) &middot; <strong>JavaScript</strong> (6.4%) &middot; <strong>Shell</strong> (3.9%) &middot; <strong>Ruby</strong> (2.4%)</li>
-          <li data-i18n="s11.item3"><strong>Bun</strong> runtime &amp; package manager</li>
-          <li data-i18n="s11.item4"><strong>MCP Server</strong> integration (Model Context Protocol)</li>
-          <li data-i18n="s11.item5"><strong>MIT License</strong> &mdash; fully open source</li>
-        </ul>
-        <br>
-        <p class="small" data-i18n="s11.stats">619 commits &middot; 36 open issues &middot; 23 PRs &middot; v2.65.0</p>
+        <section>
+          <h2 data-i18n="s11.title">Tech Stack</h2>
+          <ul>
+            <li data-i18n="s11.item1"><strong>TypeScript</strong> (76.4%) &mdash; core plugin code</li>
+            <li data-i18n="s11.item2"><strong>Python</strong> (10.9%) &middot; <strong>JavaScript</strong> (6.4%) &middot; <strong>Shell</strong> (3.9%) &middot; <strong>Ruby</strong> (2.4%)</li>
+            <li data-i18n="s11.item3"><strong>Bun</strong> runtime &amp; package manager</li>
+            <li data-i18n="s11.item4"><strong><a class="term-link" href="#/10/1">MCP Server</a></strong> integration (Model Context Protocol)</li>
+            <li data-i18n="s11.item5"><strong>MIT License</strong> &mdash; fully open source</li>
+          </ul>
+          <br>
+          <p class="small" data-i18n="s11.stats">619 commits &middot; 36 open issues &middot; 23 PRs &middot; v2.65.0</p>
+          <p class="deepdive-more-hint" data-i18n="dd.hint_s11">&darr; Press down for deep-dives: What is MCP? &middot; MCP limitations</p>
+        </section>
+
+        <!-- v1: What is MCP? -->
+        <section data-deepdive-parent="11">
+          <h2 data-i18n="dd.mcp.title">Deep-dive: What is an MCP?</h2>
+          <ul>
+            <li data-i18n="dd.mcp.item1"><strong>Model Context Protocol</strong> &mdash; open protocol by Anthropic (Nov 2024)</li>
+            <li data-i18n="dd.mcp.item2">Lets AI assistants talk to external tools, data, and APIs in a standard way</li>
+            <li data-i18n="dd.mcp.item3">Client/server: the AI is the client; an MCP server exposes <em>tools</em>, <em>resources</em>, and <em>prompts</em></li>
+            <li data-i18n="dd.mcp.item4">Often described as <em>&ldquo;USB-C for AI integrations&rdquo;</em></li>
+            <li data-i18n="dd.mcp.item5">compound-engineering ships MCP tooling that Claude Code and other clients can consume</li>
+          </ul>
+          <div class="deepdive-nav">
+            <a class="nav-back" href="#/10/0"><span data-i18n="dd.nav.back_s11">&uarr; Back to Tech Stack</span></a>
+            <button type="button" onclick="Reveal.left()" data-i18n="dd.nav.prev">&larr; Previous</button>
+            <button type="button" onclick="Reveal.right()" data-i18n="dd.nav.next">Next &rarr;</button>
+          </div>
+        </section>
+
+        <!-- v2: MCP limitations -->
+        <section data-deepdive-parent="11">
+          <h2 data-i18n="dd.mcp_limits.title">Deep-dive: MCP transports &amp; limitations</h2>
+          <ul>
+            <li data-i18n="dd.mcp_limits.item1">Two supported transports: <strong>stdio</strong> (local subprocess) and <strong>Streamable HTTP</strong> (remote)</li>
+            <li data-i18n="dd.mcp_limits.item2">Some hosts <strong>only support stdio</strong> &mdash; HTTP servers are unreachable from those clients</li>
+            <li data-i18n="dd.mcp_limits.item3">stdio is simple and secure (process-level isolation) but tied to the developer's machine</li>
+            <li data-i18n="dd.mcp_limits.item4">Remote MCP enables shared servers, auth, and hosted agents &mdash; but requires host support</li>
+            <li data-i18n="dd.mcp_limits.item5">Plugin strategy: ship <strong>stdio-first</strong> for max compatibility; offer HTTP variants where hosts support them</li>
+          </ul>
+          <div class="deepdive-nav">
+            <a class="nav-back" href="#/10/0"><span data-i18n="dd.nav.back_s11">&uarr; Back to Tech Stack</span></a>
+            <button type="button" onclick="Reveal.left()" data-i18n="dd.nav.prev">&larr; Previous</button>
+            <button type="button" onclick="Reveal.right()" data-i18n="dd.nav.next">Next &rarr;</button>
+          </div>
+        </section>
       </section>
 
       <!-- Slide 12: Pros -->
@@ -577,7 +687,7 @@
           <li data-i18n="s13.item2"><strong class="cons">Dependency-heavy</strong> &mdash; requires agent-browser, gh, jq, vhs, silicon, ffmpeg</li>
           <li data-i18n="s13.item3"><strong class="cons">Experimental cross-platform</strong> &mdash; non-Claude editors may break</li>
           <li data-i18n="s13.item4"><strong class="cons">Learning curve</strong> &mdash; 6 workflow commands with specific sequencing</li>
-          <li data-i18n="s13.item5"><strong class="cons">MCP limitations</strong> &mdash; some platforms only support stdio servers</li>
+          <li data-i18n="s13.item5"><strong class="cons"><a class="term-link" href="#/10/2">MCP limitations</a></strong> &mdash; some platforms only support stdio servers</li>
           <li data-i18n="s13.item6"><strong class="cons">Opinionated workflow</strong> &mdash; may not suit all teams or styles</li>
         </ul>
       </section>
@@ -595,7 +705,7 @@
 
       <!-- Slide 15: When NOT to Use It -->
       <section>
-        <h2 data-i18n="s15.title">When NOT to Use It</h2>
+        <h2 class="cons" data-i18n="s15.title">When NOT to Use It</h2>
         <ul>
           <li data-i18n="s15.item1">Quick prototypes or throwaway scripts</li>
           <li data-i18n="s15.item2">Solo side projects with no future maintenance</li>
@@ -689,11 +799,11 @@
         "s6.item5": "Plans are saved as markdown files in <code>docs/plans/</code>",
 
         "s7.title": "Work &amp; Review",
-        "s7.item1": "<strong>Work</strong> uses Git worktrees for isolated, parallel execution",
+        "s7.item1": "<strong>Work</strong> uses <a class=\"term-link\" href=\"#/6/1\">Git worktrees</a> for isolated, parallel execution",
         "s7.item2": "Tasks tracked with built-in todo system",
         "s7.item3": "Incremental commits as logical units complete",
         "s7.item4": "<strong>Review</strong> deploys multiple specialized reviewer agents:",
-        "s7.item5": "Security &middot; Performance &middot; Architecture &middot; Rails (DHH) &middot; Simplicity",
+        "s7.item5": "Security &middot; Performance &middot; Architecture &middot; <a class=\"term-link\" href=\"#/6/2\">Rails (DHH)</a> &middot; Simplicity",
 
         "s8.title": "Compound",
         "s8.item1": "Documents solutions, gotchas, and learnings after each cycle",
@@ -718,7 +828,7 @@
         "s11.item1": "<strong>TypeScript</strong> (76.4%) &mdash; core plugin code",
         "s11.item2": "<strong>Python</strong> (10.9%) &middot; <strong>JavaScript</strong> (6.4%) &middot; <strong>Shell</strong> (3.9%) &middot; <strong>Ruby</strong> (2.4%)",
         "s11.item3": "<strong>Bun</strong> runtime &amp; package manager",
-        "s11.item4": "<strong>MCP Server</strong> integration (Model Context Protocol)",
+        "s11.item4": "<strong><a class=\"term-link\" href=\"#/10/1\">MCP Server</a></strong> integration (Model Context Protocol)",
         "s11.item5": "<strong>MIT License</strong> &mdash; fully open source",
         "s11.stats": "619 commits &middot; 36 open issues &middot; 23 PRs &middot; v2.65.0",
 
@@ -735,7 +845,7 @@
         "s13.item2": "<strong class=\"cons\">Dependency-heavy</strong> &mdash; requires agent-browser, gh, jq, vhs, silicon, ffmpeg",
         "s13.item3": "<strong class=\"cons\">Experimental cross-platform</strong> &mdash; non-Claude editors may break",
         "s13.item4": "<strong class=\"cons\">Learning curve</strong> &mdash; 6 workflow commands with specific sequencing",
-        "s13.item5": "<strong class=\"cons\">MCP limitations</strong> &mdash; some platforms only support stdio servers",
+        "s13.item5": "<strong class=\"cons\"><a class=\"term-link\" href=\"#/10/2\">MCP limitations</a></strong> &mdash; some platforms only support stdio servers",
         "s13.item6": "<strong class=\"cons\">Opinionated workflow</strong> &mdash; may not suit all teams or styles",
 
         "s14.title": "When to Use It",
@@ -757,7 +867,41 @@
         "s16.also": "Also available as:",
 
         "s17.title": "Questions?",
-        "s18.title": "Thank You!"
+        "s18.title": "Thank You!",
+
+        "dd.hint_s7": "&darr; Press down for deep-dives: Git worktrees &middot; Rails &amp; DHH",
+        "dd.hint_s11": "&darr; Press down for deep-dives: What is MCP? &middot; MCP limitations",
+
+        "dd.worktree.title": "Deep-dive: Git worktrees",
+        "dd.worktree.item1": "<code>git worktree add &lt;path&gt; &lt;branch&gt;</code> creates a parallel working directory",
+        "dd.worktree.item2": "Same <code>.git</code>, multiple checkouts &mdash; no duplicate storage",
+        "dd.worktree.item3": "<strong>/workflows:work</strong> can run the agent in its own worktree so your main checkout stays untouched",
+        "dd.worktree.item4": "Enables parallel agent swarms: each teammate gets its own branch and working directory",
+
+        "dd.dhh.title": "Deep-dive: Rails &amp; DHH",
+        "dd.dhh.item1": "<strong>Rails</strong> &mdash; Ruby on Rails, a server-rendered web framework (2004&rarr;)",
+        "dd.dhh.item2": "<strong>DHH</strong> &mdash; David Heinemeier Hansson, Rails creator &amp; 37signals cofounder",
+        "dd.dhh.item3": "Opinionated: <em>convention over configuration</em>, REST purity, Hotwire, \"majestic monolith\"",
+        "dd.dhh.item4": "The <strong>dhh-rails-reviewer</strong> agent reviews Ruby/Rails code in his style &mdash; flags JS-framework contamination, anti-patterns, convention drift",
+
+        "dd.mcp.title": "Deep-dive: What is an MCP?",
+        "dd.mcp.item1": "<strong>Model Context Protocol</strong> &mdash; open protocol by Anthropic (Nov 2024)",
+        "dd.mcp.item2": "Lets AI assistants talk to external tools, data, and APIs in a standard way",
+        "dd.mcp.item3": "Client/server: the AI is the client; an MCP server exposes <em>tools</em>, <em>resources</em>, and <em>prompts</em>",
+        "dd.mcp.item4": "Often described as <em>&ldquo;USB-C for AI integrations&rdquo;</em>",
+        "dd.mcp.item5": "compound-engineering ships MCP tooling that Claude Code and other clients can consume",
+
+        "dd.mcp_limits.title": "Deep-dive: MCP transports &amp; limitations",
+        "dd.mcp_limits.item1": "Two supported transports: <strong>stdio</strong> (local subprocess) and <strong>Streamable HTTP</strong> (remote)",
+        "dd.mcp_limits.item2": "Some hosts <strong>only support stdio</strong> &mdash; HTTP servers are unreachable from those clients",
+        "dd.mcp_limits.item3": "stdio is simple and secure (process-level isolation) but tied to the developer's machine",
+        "dd.mcp_limits.item4": "Remote MCP enables shared servers, auth, and hosted agents &mdash; but requires host support",
+        "dd.mcp_limits.item5": "Plugin strategy: ship <strong>stdio-first</strong> for max compatibility; offer HTTP variants where hosts support them",
+
+        "dd.nav.prev": "&larr; Previous",
+        "dd.nav.next": "Next &rarr;",
+        "dd.nav.back_s7": "&uarr; Back to Work &amp; Review",
+        "dd.nav.back_s11": "&uarr; Back to Tech Stack"
       },
 
       es: {
@@ -803,11 +947,11 @@
         "s6.item5": "Los planes se guardan como archivos markdown en <code>docs/plans/</code>",
 
         "s7.title": "Trabajo y Revisi\u00f3n",
-        "s7.item1": "<strong>Work</strong> usa Git worktrees para ejecuci\u00f3n aislada y paralela",
+        "s7.item1": "<strong>Work</strong> usa <a class=\"term-link\" href=\"#/6/1\">Git worktrees</a> para ejecuci\u00f3n aislada y paralela",
         "s7.item2": "Tareas rastreadas con sistema de tareas integrado",
         "s7.item3": "Commits incrementales a medida que se completan unidades l\u00f3gicas",
         "s7.item4": "<strong>Review</strong> despliega m\u00faltiples agentes revisores especializados:",
-        "s7.item5": "Seguridad &middot; Rendimiento &middot; Arquitectura &middot; Rails (DHH) &middot; Simplicidad",
+        "s7.item5": "Seguridad &middot; Rendimiento &middot; Arquitectura &middot; <a class=\"term-link\" href=\"#/6/2\">Rails (DHH)</a> &middot; Simplicidad",
 
         "s8.title": "Componer",
         "s8.item1": "Documenta soluciones, problemas encontrados y aprendizajes despu\u00e9s de cada ciclo",
@@ -832,7 +976,7 @@
         "s11.item1": "<strong>TypeScript</strong> (76.4%) &mdash; c\u00f3digo principal del plugin",
         "s11.item2": "<strong>Python</strong> (10.9%) &middot; <strong>JavaScript</strong> (6.4%) &middot; <strong>Shell</strong> (3.9%) &middot; <strong>Ruby</strong> (2.4%)",
         "s11.item3": "<strong>Bun</strong> runtime y gestor de paquetes",
-        "s11.item4": "<strong>MCP Server</strong> integraci\u00f3n (Model Context Protocol)",
+        "s11.item4": "<strong><a class=\"term-link\" href=\"#/10/1\">MCP Server</a></strong> integraci\u00f3n (Model Context Protocol)",
         "s11.item5": "<strong>Licencia MIT</strong> &mdash; totalmente c\u00f3digo abierto",
         "s11.stats": "619 commits &middot; 36 issues abiertos &middot; 23 PRs &middot; v2.65.0",
 
@@ -849,7 +993,7 @@
         "s13.item2": "<strong class=\"cons\">Muchas dependencias</strong> &mdash; requiere agent-browser, gh, jq, vhs, silicon, ffmpeg",
         "s13.item3": "<strong class=\"cons\">Multi-plataforma experimental</strong> &mdash; editores fuera de Claude pueden fallar",
         "s13.item4": "<strong class=\"cons\">Curva de aprendizaje</strong> &mdash; 6 comandos de flujo con secuencia espec\u00edfica",
-        "s13.item5": "<strong class=\"cons\">Limitaciones de MCP</strong> &mdash; algunas plataformas solo soportan servidores stdio",
+        "s13.item5": "<strong class=\"cons\"><a class=\"term-link\" href=\"#/10/2\">Limitaciones de MCP</a></strong> &mdash; algunas plataformas solo soportan servidores stdio",
         "s13.item6": "<strong class=\"cons\">Flujo dogm\u00e1tico</strong> &mdash; puede no adaptarse a todos los equipos o estilos",
 
         "s14.title": "Cu\u00e1ndo Usarlo",
@@ -871,7 +1015,41 @@
         "s16.also": "Tambi\u00e9n disponible como:",
 
         "s17.title": "\u00bfPreguntas?",
-        "s18.title": "\u00a1Gracias!"
+        "s18.title": "\u00a1Gracias!",
+
+        "dd.hint_s7": "&darr; Baja para los deep-dives: Git worktrees &middot; Rails y DHH",
+        "dd.hint_s11": "&darr; Baja para los deep-dives: \u00bfQu\u00e9 es MCP? &middot; Limitaciones de MCP",
+
+        "dd.worktree.title": "Deep-dive: Git worktrees",
+        "dd.worktree.item1": "<code>git worktree add &lt;path&gt; &lt;branch&gt;</code> crea un directorio de trabajo paralelo",
+        "dd.worktree.item2": "Mismo <code>.git</code>, m\u00faltiples checkouts &mdash; sin almacenamiento duplicado",
+        "dd.worktree.item3": "<strong>/workflows:work</strong> puede ejecutar el agente en su propio worktree para no tocar tu checkout principal",
+        "dd.worktree.item4": "Habilita enjambres de agentes en paralelo: cada compa\u00f1ero tiene su rama y directorio",
+
+        "dd.dhh.title": "Deep-dive: Rails y DHH",
+        "dd.dhh.item1": "<strong>Rails</strong> &mdash; Ruby on Rails, framework web con renderizado en servidor (2004&rarr;)",
+        "dd.dhh.item2": "<strong>DHH</strong> &mdash; David Heinemeier Hansson, creador de Rails y cofundador de 37signals",
+        "dd.dhh.item3": "Opinionado: <em>convenci\u00f3n sobre configuraci\u00f3n</em>, REST puro, Hotwire, \"majestic monolith\"",
+        "dd.dhh.item4": "El agente <strong>dhh-rails-reviewer</strong> revisa c\u00f3digo Ruby/Rails en su estilo &mdash; detecta contaminaci\u00f3n de frameworks JS, anti-patrones, desv\u00edos de convenci\u00f3n",
+
+        "dd.mcp.title": "Deep-dive: \u00bfQu\u00e9 es un MCP?",
+        "dd.mcp.item1": "<strong>Model Context Protocol</strong> &mdash; protocolo abierto de Anthropic (nov 2024)",
+        "dd.mcp.item2": "Permite que los asistentes IA hablen con herramientas, datos y APIs externas de forma est\u00e1ndar",
+        "dd.mcp.item3": "Cliente/servidor: la IA es el cliente; un servidor MCP expone <em>tools</em>, <em>resources</em> y <em>prompts</em>",
+        "dd.mcp.item4": "Se describe a menudo como <em>&ldquo;USB-C para integraciones de IA&rdquo;</em>",
+        "dd.mcp.item5": "compound-engineering incluye herramientas MCP que Claude Code y otros clientes pueden consumir",
+
+        "dd.mcp_limits.title": "Deep-dive: Transportes y limitaciones de MCP",
+        "dd.mcp_limits.item1": "Dos transportes soportados: <strong>stdio</strong> (subproceso local) y <strong>Streamable HTTP</strong> (remoto)",
+        "dd.mcp_limits.item2": "Algunos hosts <strong>solo soportan stdio</strong> &mdash; los servidores HTTP son inalcanzables desde esos clientes",
+        "dd.mcp_limits.item3": "stdio es simple y seguro (aislamiento por proceso) pero atado a la m\u00e1quina del desarrollador",
+        "dd.mcp_limits.item4": "MCP remoto habilita servidores compartidos, autenticaci\u00f3n y agentes hospedados &mdash; pero requiere soporte del host",
+        "dd.mcp_limits.item5": "Estrategia del plugin: primero <strong>stdio</strong> para m\u00e1xima compatibilidad; variantes HTTP donde los hosts las soporten",
+
+        "dd.nav.prev": "&larr; Anterior",
+        "dd.nav.next": "Siguiente &rarr;",
+        "dd.nav.back_s7": "&uarr; Volver a Work &amp; Review",
+        "dd.nav.back_s11": "&uarr; Volver a Tech Stack"
       },
 
       pt: {
@@ -917,11 +1095,11 @@
         "s6.item5": "Os planos s\u00e3o salvos como arquivos markdown em <code>docs/plans/</code>",
 
         "s7.title": "Trabalho e Revis\u00e3o",
-        "s7.item1": "<strong>Work</strong> usa Git worktrees para execu\u00e7\u00e3o isolada e paralela",
+        "s7.item1": "<strong>Work</strong> usa <a class=\"term-link\" href=\"#/6/1\">Git worktrees</a> para execu\u00e7\u00e3o isolada e paralela",
         "s7.item2": "Tarefas rastreadas com sistema de tarefas integrado",
         "s7.item3": "Commits incrementais conforme unidades l\u00f3gicas s\u00e3o conclu\u00eddas",
         "s7.item4": "<strong>Review</strong> implanta m\u00faltiplos agentes revisores especializados:",
-        "s7.item5": "Seguran\u00e7a &middot; Performance &middot; Arquitetura &middot; Rails (DHH) &middot; Simplicidade",
+        "s7.item5": "Seguran\u00e7a &middot; Performance &middot; Arquitetura &middot; <a class=\"term-link\" href=\"#/6/2\">Rails (DHH)</a> &middot; Simplicidade",
 
         "s8.title": "Compor",
         "s8.item1": "Documenta solu\u00e7\u00f5es, problemas encontrados e aprendizados ap\u00f3s cada ciclo",
@@ -946,7 +1124,7 @@
         "s11.item1": "<strong>TypeScript</strong> (76.4%) &mdash; c\u00f3digo principal do plugin",
         "s11.item2": "<strong>Python</strong> (10.9%) &middot; <strong>JavaScript</strong> (6.4%) &middot; <strong>Shell</strong> (3.9%) &middot; <strong>Ruby</strong> (2.4%)",
         "s11.item3": "<strong>Bun</strong> runtime e gerenciador de pacotes",
-        "s11.item4": "<strong>MCP Server</strong> integra\u00e7\u00e3o (Model Context Protocol)",
+        "s11.item4": "<strong><a class=\"term-link\" href=\"#/10/1\">MCP Server</a></strong> integra\u00e7\u00e3o (Model Context Protocol)",
         "s11.item5": "<strong>Licen\u00e7a MIT</strong> &mdash; totalmente c\u00f3digo aberto",
         "s11.stats": "619 commits &middot; 36 issues abertos &middot; 23 PRs &middot; v2.65.0",
 
@@ -963,7 +1141,7 @@
         "s13.item2": "<strong class=\"cons\">Muitas depend\u00eancias</strong> &mdash; requer agent-browser, gh, jq, vhs, silicon, ffmpeg",
         "s13.item3": "<strong class=\"cons\">Multi-plataforma experimental</strong> &mdash; editores fora do Claude podem falhar",
         "s13.item4": "<strong class=\"cons\">Curva de aprendizado</strong> &mdash; 6 comandos de fluxo com sequ\u00eancia espec\u00edfica",
-        "s13.item5": "<strong class=\"cons\">Limita\u00e7\u00f5es do MCP</strong> &mdash; algumas plataformas s\u00f3 suportam servidores stdio",
+        "s13.item5": "<strong class=\"cons\"><a class=\"term-link\" href=\"#/10/2\">Limita\u00e7\u00f5es do MCP</a></strong> &mdash; algumas plataformas s\u00f3 suportam servidores stdio",
         "s13.item6": "<strong class=\"cons\">Fluxo opinionado</strong> &mdash; pode n\u00e3o se adaptar a todos os times ou estilos",
 
         "s14.title": "Quando Usar",
@@ -985,7 +1163,41 @@
         "s16.also": "Tamb\u00e9m dispon\u00edvel como:",
 
         "s17.title": "Perguntas?",
-        "s18.title": "Obrigado!"
+        "s18.title": "Obrigado!",
+
+        "dd.hint_s7": "&darr; Desce para os deep-dives: Git worktrees &middot; Rails e DHH",
+        "dd.hint_s11": "&darr; Desce para os deep-dives: O que \u00e9 MCP? &middot; Limita\u00e7\u00f5es do MCP",
+
+        "dd.worktree.title": "Deep-dive: Git worktrees",
+        "dd.worktree.item1": "<code>git worktree add &lt;path&gt; &lt;branch&gt;</code> cria um diret\u00f3rio de trabalho paralelo",
+        "dd.worktree.item2": "Mesmo <code>.git</code>, v\u00e1rios checkouts &mdash; sem armazenamento duplicado",
+        "dd.worktree.item3": "<strong>/workflows:work</strong> pode rodar o agente no pr\u00f3prio worktree sem tocar no seu checkout principal",
+        "dd.worktree.item4": "Habilita enxames de agentes em paralelo: cada colega tem seu branch e diret\u00f3rio",
+
+        "dd.dhh.title": "Deep-dive: Rails e DHH",
+        "dd.dhh.item1": "<strong>Rails</strong> &mdash; Ruby on Rails, framework web com renderiza\u00e7\u00e3o no servidor (2004&rarr;)",
+        "dd.dhh.item2": "<strong>DHH</strong> &mdash; David Heinemeier Hansson, criador do Rails e cofundador da 37signals",
+        "dd.dhh.item3": "Opinionado: <em>conven\u00e7\u00e3o sobre configura\u00e7\u00e3o</em>, REST puro, Hotwire, \"majestic monolith\"",
+        "dd.dhh.item4": "O agente <strong>dhh-rails-reviewer</strong> revisa c\u00f3digo Ruby/Rails no estilo dele &mdash; sinaliza contamina\u00e7\u00e3o de frameworks JS, anti-padr\u00f5es, desvios de conven\u00e7\u00e3o",
+
+        "dd.mcp.title": "Deep-dive: O que \u00e9 um MCP?",
+        "dd.mcp.item1": "<strong>Model Context Protocol</strong> &mdash; protocolo aberto da Anthropic (nov 2024)",
+        "dd.mcp.item2": "Permite que assistentes de IA conversem com ferramentas, dados e APIs externas de forma padronizada",
+        "dd.mcp.item3": "Cliente/servidor: a IA \u00e9 o cliente; um servidor MCP exp\u00f5e <em>tools</em>, <em>resources</em> e <em>prompts</em>",
+        "dd.mcp.item4": "Frequentemente descrito como <em>&ldquo;USB-C para integra\u00e7\u00f5es de IA&rdquo;</em>",
+        "dd.mcp.item5": "compound-engineering fornece ferramentas MCP que Claude Code e outros clientes podem consumir",
+
+        "dd.mcp_limits.title": "Deep-dive: Transportes e limita\u00e7\u00f5es do MCP",
+        "dd.mcp_limits.item1": "Dois transportes suportados: <strong>stdio</strong> (subprocesso local) e <strong>Streamable HTTP</strong> (remoto)",
+        "dd.mcp_limits.item2": "Alguns hosts <strong>s\u00f3 suportam stdio</strong> &mdash; servidores HTTP ficam inacess\u00edveis para esses clientes",
+        "dd.mcp_limits.item3": "stdio \u00e9 simples e seguro (isolamento por processo) mas atrelado \u00e0 m\u00e1quina do desenvolvedor",
+        "dd.mcp_limits.item4": "MCP remoto habilita servidores compartilhados, autentica\u00e7\u00e3o e agentes hospedados &mdash; mas exige suporte do host",
+        "dd.mcp_limits.item5": "Estrat\u00e9gia do plugin: <strong>stdio primeiro</strong> para m\u00e1xima compatibilidade; variantes HTTP onde houver suporte",
+
+        "dd.nav.prev": "&larr; Anterior",
+        "dd.nav.next": "Pr\u00f3ximo &rarr;",
+        "dd.nav.back_s7": "&uarr; Voltar para Work &amp; Review",
+        "dd.nav.back_s11": "&uarr; Voltar para Tech Stack"
       }
     };
 
