@@ -148,14 +148,16 @@
     }
 
     /* ── Deep-dive term links + navigator ── */
-    .term-link {
+    /* Scope under .reveal to beat Reveal theme's `.reveal a { text-decoration: none; }` */
+    .reveal a.term-link {
       color: var(--accent);
       text-decoration: underline dotted;
-      text-underline-offset: 3px;
+      text-decoration-thickness: 2px;
+      text-underline-offset: 4px;
       cursor: pointer;
       font-weight: inherit;
     }
-    .term-link:hover, .term-link:focus { text-decoration-style: solid; outline: none; }
+    .reveal a.term-link:hover, .reveal a.term-link:focus { text-decoration-style: solid; outline: none; }
 
     .deepdive-nav {
       display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;
