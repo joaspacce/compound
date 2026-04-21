@@ -485,6 +485,30 @@ From `docs/solutions/documentation-drift/presentation-advertised-unshipped-slash
 <h2 class="cons" data-i18n="s15.title">When NOT to Use It</h2>
 ```
 
+## Post-Ship Follow-Up (2026-04-21)
+
+After PR #2 (`9cf2407`) was merged and demoed, the term links rendered as plain accent-colored text with **no visible underline**. Root cause: Reveal.js's bundled `black.css` theme defines `.reveal a { text-decoration: none; }` at specificity `(0,1,1)`, which outranks the unscoped `.term-link` rule at `(0,1,0)`. The theme's rule silently stripped `text-decoration: underline dotted` from every `<a class="term-link">`. The anchors still worked (color, cursor, click), but the "this is a link" affordance was invisible.
+
+**Fix (PR #3, `fix/term-link-specificity`):** Scope the selector as `.reveal a.term-link` to match the theme's specificity and win by source order. Also bump `text-decoration-thickness` to 2px and `text-underline-offset` to 4px so the underline is clearly distinguishable at body font size.
+
+```diff
+-    .term-link {
++    /* Scope under .reveal to beat Reveal theme's `.reveal a { text-decoration: none; }` */
++    .reveal a.term-link {
+       color: var(--accent);
+       text-decoration: underline dotted;
++      text-decoration-thickness: 2px;
+-      text-underline-offset: 3px;
++      text-underline-offset: 4px;
+       cursor: pointer;
+       font-weight: inherit;
+     }
+-    .term-link:hover, .term-link:focus { text-decoration-style: solid; outline: none; }
++    .reveal a.term-link:hover, .reveal a.term-link:focus { text-decoration-style: solid; outline: none; }
+```
+
+**Lesson to carry forward.** This presentation uses a vendored Reveal.js theme (`presentation/vendor/black.css`). Any `.reveal`-child selector we write for a new clickable element needs to match or exceed the theme's specificity. Unscoped class-only selectors will lose. Rule of thumb: **scope interactive-element CSS under `.reveal` whenever the theme has a matching element selector.** Worth capturing as a solutions doc in `docs/solutions/ui-features/` as a durable reminder for the next time we add a styled anchor, button, or input to the deck.
+
 ## References
 
 ### Internal
