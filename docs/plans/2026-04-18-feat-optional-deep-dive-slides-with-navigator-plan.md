@@ -509,6 +509,37 @@ After PR #2 (`9cf2407`) was merged and demoed, the term links rendered as plain 
 
 **Lesson to carry forward.** This presentation uses a vendored Reveal.js theme (`presentation/vendor/black.css`). Any `.reveal`-child selector we write for a new clickable element needs to match or exceed the theme's specificity. Unscoped class-only selectors will lose. Rule of thumb: **scope interactive-element CSS under `.reveal` whenever the theme has a matching element selector.** Worth capturing as a solutions doc in `docs/solutions/ui-features/` as a durable reminder for the next time we add a styled anchor, button, or input to the deck.
 
+## Post-Ship Refinement Round 2 (2026-04-21) — MCP deep-dives become plugin-specific
+
+After the MCP research brainstorm + plan (PR #5, branch `docs/mcp-stdio-research-plan`), one finding surfaced that the shipped MCP deep-dives don't yet reflect: **the compound-engineering plugin's only MCP server is `context7`, declared as `type: "http"`.** The original deep-dive content was written in abstract "what MCP is + what its limitations are" terms. The audience benefits more from plugin-specific framing:
+
+1. **Slide 11 v1 ("What is an MCP?") should be minimal** — three bullets, not five. Drop the USB-C analogy and the generic "compound-engineering ships MCP tooling" line; end with the load-bearing fact: *this plugin uses one MCP (context7) for framework documentation lookup.*
+2. **Slide 11 v2 ("MCP transports & limitations") should center on the plugin's HTTP choice** — the slide 13 Cons item *"MCP limitations — some platforms only support stdio"* is a vague caveat today. Rewrite the deep-dive so the audience walks away with: *our plugin's MCP is HTTP-based, so on stdio-only hosts the context7 integration silently doesn't load — but the rest of the plugin still works because MCP is secondary.*
+
+### New bullet content (EN; ES/PT mirror)
+
+**`dd.mcp.*` — What is an MCP? (3 bullets total; delete item4 and item5)**
+
+1. `Model Context Protocol` — open standard from Anthropic (Nov 2024) for AI-to-tool connections
+2. AI is the client; an MCP server exposes `tools`, `resources`, and `prompts`
+3. compound-engineering uses one MCP: `context7`, for framework documentation lookup
+
+**`dd.mcp_limits.*` — MCP transports & limitations (5 bullets, all rewritten)**
+
+1. MCP has two transports: `stdio` (local subprocess) and `Streamable HTTP` (remote)
+2. **This plugin's MCP (`context7`) is HTTP-based** — it calls a remote server at `mcp.context7.com`
+3. On hosts that only support stdio, context7 **silently doesn't load** — no crash, just no docs lookup
+4. The rest of the plugin still works — MCP is secondary, used by `/deepen-plan` + 2 skills
+5. Claude Code & Cursor support HTTP; OpenCode and Codex are experimental — verify before relying on context7
+
+### Scope
+
+- Two `<section>` bodies in `presentation/index.html` rewritten (slide 11 verticals v1 and v2).
+- `dd.mcp.item4` and `dd.mcp.item5` keys deleted in all three dictionaries and in the HTML fallback.
+- All remaining `dd.mcp.*` and `dd.mcp_limits.*` strings updated in EN / ES / PT.
+- Hint text (`dd.hint_s11`) unchanged — still accurate.
+- No CSS changes; no navigator changes; no other slides touched.
+
 ## References
 
 ### Internal

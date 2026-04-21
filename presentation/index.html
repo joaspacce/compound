@@ -637,11 +637,9 @@
         <section data-deepdive-parent="11">
           <h2 data-i18n="dd.mcp.title">Deep-dive: What is an MCP?</h2>
           <ul>
-            <li data-i18n="dd.mcp.item1"><strong>Model Context Protocol</strong> &mdash; open protocol by Anthropic (Nov 2024)</li>
-            <li data-i18n="dd.mcp.item2">Lets AI assistants talk to external tools, data, and APIs in a standard way</li>
-            <li data-i18n="dd.mcp.item3">Client/server: the AI is the client; an MCP server exposes <em>tools</em>, <em>resources</em>, and <em>prompts</em></li>
-            <li data-i18n="dd.mcp.item4">Often described as <em>&ldquo;USB-C for AI integrations&rdquo;</em></li>
-            <li data-i18n="dd.mcp.item5">compound-engineering ships MCP tooling that Claude Code and other clients can consume</li>
+            <li data-i18n="dd.mcp.item1"><strong>Model Context Protocol</strong> &mdash; open standard from Anthropic (Nov 2024) for AI-to-tool connections</li>
+            <li data-i18n="dd.mcp.item2">AI is the client; an MCP server exposes <em>tools</em>, <em>resources</em>, and <em>prompts</em></li>
+            <li data-i18n="dd.mcp.item3">compound-engineering uses one MCP: <strong>context7</strong>, for framework documentation lookup</li>
           </ul>
           <div class="deepdive-nav">
             <a class="nav-back" href="#/10/0"><span data-i18n="dd.nav.back_s11">&uarr; Back to Tech Stack</span></a>
@@ -654,11 +652,11 @@
         <section data-deepdive-parent="11">
           <h2 data-i18n="dd.mcp_limits.title">Deep-dive: MCP transports &amp; limitations</h2>
           <ul>
-            <li data-i18n="dd.mcp_limits.item1">Two supported transports: <strong>stdio</strong> (local subprocess) and <strong>Streamable HTTP</strong> (remote)</li>
-            <li data-i18n="dd.mcp_limits.item2">Some hosts <strong>only support stdio</strong> &mdash; HTTP servers are unreachable from those clients</li>
-            <li data-i18n="dd.mcp_limits.item3">stdio is simple and secure (process-level isolation) but tied to the developer's machine</li>
-            <li data-i18n="dd.mcp_limits.item4">Remote MCP enables shared servers, auth, and hosted agents &mdash; but requires host support</li>
-            <li data-i18n="dd.mcp_limits.item5">Plugin strategy: ship <strong>stdio-first</strong> for max compatibility; offer HTTP variants where hosts support them</li>
+            <li data-i18n="dd.mcp_limits.item1">MCP has two transports: <strong>stdio</strong> (local subprocess) and <strong>Streamable HTTP</strong> (remote)</li>
+            <li data-i18n="dd.mcp_limits.item2">This plugin's MCP (<strong>context7</strong>) is <strong>HTTP-based</strong> &mdash; it calls a remote server at <code>mcp.context7.com</code></li>
+            <li data-i18n="dd.mcp_limits.item3">On hosts that only support stdio, context7 <strong>silently doesn't load</strong> &mdash; no crash, just no docs lookup</li>
+            <li data-i18n="dd.mcp_limits.item4">The rest of the plugin still works &mdash; MCP is secondary, used by <code>/deepen-plan</code> + 2 skills</li>
+            <li data-i18n="dd.mcp_limits.item5">Claude Code &amp; Cursor support HTTP; OpenCode and Codex are experimental &mdash; verify before relying on context7</li>
           </ul>
           <div class="deepdive-nav">
             <a class="nav-back" href="#/10/0"><span data-i18n="dd.nav.back_s11">&uarr; Back to Tech Stack</span></a>
@@ -887,18 +885,16 @@
         "dd.dhh.item4": "The <strong>dhh-rails-reviewer</strong> agent reviews Ruby/Rails code in his style &mdash; flags JS-framework contamination, anti-patterns, convention drift",
 
         "dd.mcp.title": "Deep-dive: What is an MCP?",
-        "dd.mcp.item1": "<strong>Model Context Protocol</strong> &mdash; open protocol by Anthropic (Nov 2024)",
-        "dd.mcp.item2": "Lets AI assistants talk to external tools, data, and APIs in a standard way",
-        "dd.mcp.item3": "Client/server: the AI is the client; an MCP server exposes <em>tools</em>, <em>resources</em>, and <em>prompts</em>",
-        "dd.mcp.item4": "Often described as <em>&ldquo;USB-C for AI integrations&rdquo;</em>",
-        "dd.mcp.item5": "compound-engineering ships MCP tooling that Claude Code and other clients can consume",
+        "dd.mcp.item1": "<strong>Model Context Protocol</strong> &mdash; open standard from Anthropic (Nov 2024) for AI-to-tool connections",
+        "dd.mcp.item2": "AI is the client; an MCP server exposes <em>tools</em>, <em>resources</em>, and <em>prompts</em>",
+        "dd.mcp.item3": "compound-engineering uses one MCP: <strong>context7</strong>, for framework documentation lookup",
 
         "dd.mcp_limits.title": "Deep-dive: MCP transports &amp; limitations",
-        "dd.mcp_limits.item1": "Two supported transports: <strong>stdio</strong> (local subprocess) and <strong>Streamable HTTP</strong> (remote)",
-        "dd.mcp_limits.item2": "Some hosts <strong>only support stdio</strong> &mdash; HTTP servers are unreachable from those clients",
-        "dd.mcp_limits.item3": "stdio is simple and secure (process-level isolation) but tied to the developer's machine",
-        "dd.mcp_limits.item4": "Remote MCP enables shared servers, auth, and hosted agents &mdash; but requires host support",
-        "dd.mcp_limits.item5": "Plugin strategy: ship <strong>stdio-first</strong> for max compatibility; offer HTTP variants where hosts support them",
+        "dd.mcp_limits.item1": "MCP has two transports: <strong>stdio</strong> (local subprocess) and <strong>Streamable HTTP</strong> (remote)",
+        "dd.mcp_limits.item2": "This plugin's MCP (<strong>context7</strong>) is <strong>HTTP-based</strong> &mdash; it calls a remote server at <code>mcp.context7.com</code>",
+        "dd.mcp_limits.item3": "On hosts that only support stdio, context7 <strong>silently doesn't load</strong> &mdash; no crash, just no docs lookup",
+        "dd.mcp_limits.item4": "The rest of the plugin still works &mdash; MCP is secondary, used by <code>/deepen-plan</code> + 2 skills",
+        "dd.mcp_limits.item5": "Claude Code &amp; Cursor support HTTP; OpenCode and Codex are experimental &mdash; verify before relying on context7",
 
         "dd.nav.prev": "&larr; Previous",
         "dd.nav.next": "Next &rarr;",
@@ -1035,18 +1031,16 @@
         "dd.dhh.item4": "El agente <strong>dhh-rails-reviewer</strong> revisa c\u00f3digo Ruby/Rails en su estilo &mdash; detecta contaminaci\u00f3n de frameworks JS, anti-patrones, desv\u00edos de convenci\u00f3n",
 
         "dd.mcp.title": "Deep-dive: \u00bfQu\u00e9 es un MCP?",
-        "dd.mcp.item1": "<strong>Model Context Protocol</strong> &mdash; protocolo abierto de Anthropic (nov 2024)",
-        "dd.mcp.item2": "Permite que los asistentes IA hablen con herramientas, datos y APIs externas de forma est\u00e1ndar",
-        "dd.mcp.item3": "Cliente/servidor: la IA es el cliente; un servidor MCP expone <em>tools</em>, <em>resources</em> y <em>prompts</em>",
-        "dd.mcp.item4": "Se describe a menudo como <em>&ldquo;USB-C para integraciones de IA&rdquo;</em>",
-        "dd.mcp.item5": "compound-engineering incluye herramientas MCP que Claude Code y otros clientes pueden consumir",
+        "dd.mcp.item1": "<strong>Model Context Protocol</strong> &mdash; est\u00e1ndar abierto de Anthropic (nov 2024) para conectar IA con herramientas",
+        "dd.mcp.item2": "La IA es el cliente; un servidor MCP expone <em>tools</em>, <em>resources</em> y <em>prompts</em>",
+        "dd.mcp.item3": "compound-engineering usa un MCP: <strong>context7</strong>, para buscar documentaci\u00f3n de frameworks",
 
         "dd.mcp_limits.title": "Deep-dive: Transportes y limitaciones de MCP",
-        "dd.mcp_limits.item1": "Dos transportes soportados: <strong>stdio</strong> (subproceso local) y <strong>Streamable HTTP</strong> (remoto)",
-        "dd.mcp_limits.item2": "Algunos hosts <strong>solo soportan stdio</strong> &mdash; los servidores HTTP son inalcanzables desde esos clientes",
-        "dd.mcp_limits.item3": "stdio es simple y seguro (aislamiento por proceso) pero atado a la m\u00e1quina del desarrollador",
-        "dd.mcp_limits.item4": "MCP remoto habilita servidores compartidos, autenticaci\u00f3n y agentes hospedados &mdash; pero requiere soporte del host",
-        "dd.mcp_limits.item5": "Estrategia del plugin: primero <strong>stdio</strong> para m\u00e1xima compatibilidad; variantes HTTP donde los hosts las soporten",
+        "dd.mcp_limits.item1": "MCP tiene dos transportes: <strong>stdio</strong> (subproceso local) y <strong>Streamable HTTP</strong> (remoto)",
+        "dd.mcp_limits.item2": "El MCP de este plugin (<strong>context7</strong>) es <strong>HTTP</strong> &mdash; llama a un servidor remoto en <code>mcp.context7.com</code>",
+        "dd.mcp_limits.item3": "En hosts que solo soportan stdio, context7 <strong>no carga silenciosamente</strong> &mdash; no hay crash, solo falta la b\u00fasqueda de docs",
+        "dd.mcp_limits.item4": "El resto del plugin funciona &mdash; MCP es secundario, usado por <code>/deepen-plan</code> + 2 skills",
+        "dd.mcp_limits.item5": "Claude Code y Cursor soportan HTTP; OpenCode y Codex son experimentales &mdash; verificar antes de depender de context7",
 
         "dd.nav.prev": "&larr; Anterior",
         "dd.nav.next": "Siguiente &rarr;",
@@ -1183,18 +1177,16 @@
         "dd.dhh.item4": "O agente <strong>dhh-rails-reviewer</strong> revisa c\u00f3digo Ruby/Rails no estilo dele &mdash; sinaliza contamina\u00e7\u00e3o de frameworks JS, anti-padr\u00f5es, desvios de conven\u00e7\u00e3o",
 
         "dd.mcp.title": "Deep-dive: O que \u00e9 um MCP?",
-        "dd.mcp.item1": "<strong>Model Context Protocol</strong> &mdash; protocolo aberto da Anthropic (nov 2024)",
-        "dd.mcp.item2": "Permite que assistentes de IA conversem com ferramentas, dados e APIs externas de forma padronizada",
-        "dd.mcp.item3": "Cliente/servidor: a IA \u00e9 o cliente; um servidor MCP exp\u00f5e <em>tools</em>, <em>resources</em> e <em>prompts</em>",
-        "dd.mcp.item4": "Frequentemente descrito como <em>&ldquo;USB-C para integra\u00e7\u00f5es de IA&rdquo;</em>",
-        "dd.mcp.item5": "compound-engineering fornece ferramentas MCP que Claude Code e outros clientes podem consumir",
+        "dd.mcp.item1": "<strong>Model Context Protocol</strong> &mdash; padr\u00e3o aberto da Anthropic (nov 2024) para conectar IA a ferramentas",
+        "dd.mcp.item2": "A IA \u00e9 o cliente; um servidor MCP exp\u00f5e <em>tools</em>, <em>resources</em> e <em>prompts</em>",
+        "dd.mcp.item3": "compound-engineering usa um MCP: <strong>context7</strong>, para buscar documenta\u00e7\u00e3o de frameworks",
 
         "dd.mcp_limits.title": "Deep-dive: Transportes e limita\u00e7\u00f5es do MCP",
-        "dd.mcp_limits.item1": "Dois transportes suportados: <strong>stdio</strong> (subprocesso local) e <strong>Streamable HTTP</strong> (remoto)",
-        "dd.mcp_limits.item2": "Alguns hosts <strong>s\u00f3 suportam stdio</strong> &mdash; servidores HTTP ficam inacess\u00edveis para esses clientes",
-        "dd.mcp_limits.item3": "stdio \u00e9 simples e seguro (isolamento por processo) mas atrelado \u00e0 m\u00e1quina do desenvolvedor",
-        "dd.mcp_limits.item4": "MCP remoto habilita servidores compartilhados, autentica\u00e7\u00e3o e agentes hospedados &mdash; mas exige suporte do host",
-        "dd.mcp_limits.item5": "Estrat\u00e9gia do plugin: <strong>stdio primeiro</strong> para m\u00e1xima compatibilidade; variantes HTTP onde houver suporte",
+        "dd.mcp_limits.item1": "MCP tem dois transportes: <strong>stdio</strong> (subprocesso local) e <strong>Streamable HTTP</strong> (remoto)",
+        "dd.mcp_limits.item2": "O MCP deste plugin (<strong>context7</strong>) \u00e9 <strong>HTTP</strong> &mdash; chama um servidor remoto em <code>mcp.context7.com</code>",
+        "dd.mcp_limits.item3": "Em hosts que s\u00f3 suportam stdio, context7 <strong>n\u00e3o carrega silenciosamente</strong> &mdash; sem crash, s\u00f3 falta a busca de docs",
+        "dd.mcp_limits.item4": "O resto do plugin funciona &mdash; MCP \u00e9 secund\u00e1rio, usado por <code>/deepen-plan</code> + 2 skills",
+        "dd.mcp_limits.item5": "Claude Code e Cursor suportam HTTP; OpenCode e Codex s\u00e3o experimentais &mdash; verificar antes de depender de context7",
 
         "dd.nav.prev": "&larr; Anterior",
         "dd.nav.next": "Pr\u00f3ximo &rarr;",
